@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7C3AED">
+<title>Polly's Polygon Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1E1B4B;--muted:#4B5563;--bg:#F3F0FF;--card:#fff;--purple:#7C3AED;--teal:#0D9488;--coral:#E11D48;--sun:#F59E0B;--green:#16A34A;--sky:#2563EB;--r:18px;
+font-family:'Fredoka','Baloo 2','Nunito','Trebuchet MS','Segoe UI',system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{font-size:18px;line-height:1.3;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;touch-action:manipulation}
+button:focus-visible{outline:4px solid #A78BFA;outline-offset:2px}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.topbar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fff;box-shadow:0 2px 0 #E4DEFF;z-index:5;flex:none}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:22px;color:var(--purple);padding:2px 6px;border-radius:12px}
+.brand svg{width:42px;height:42px}
+.brand span b{color:var(--sun)}
+.spacer{flex:1}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#FEF3C7;border-radius:999px;padding:6px 12px;font-weight:600;font-size:18px;white-space:nowrap}
+.pill svg{width:22px;height:22px}
+.pill.streak{background:#FFEDD5}
+.pill.pop{animation:pop .4s}
+.iconbtn{width:48px;height:48px;border-radius:14px;background:#EDE9FE;display:grid;place-items:center;flex:none}
+.iconbtn svg{width:28px;height:28px}
+main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+/* home */
+.home{padding:10px;display:flex;flex-direction:column;gap:10px}
+.hero{display:flex;align-items:center;gap:16px;background:linear-gradient(120deg,#6D28D9,#2563EB);color:#fff;border-radius:var(--r);padding:12px 18px;position:relative;overflow:hidden}
+.hero .mascot{width:110px;height:110px}
+.hero h1{margin:0;font-size:34px}
+.hero p{margin:2px 0 8px;font-size:19px;opacity:.95}
+.hero .pill{background:rgba(255,255,255,.2);color:#fff}
+.hero-deco{position:absolute;right:-20px;top:-20px;width:220px;height:180px;opacity:.18}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{background:#fff;border-radius:var(--r);padding:12px 14px;text-align:left;display:grid;grid-template-columns:72px 1fr;gap:4px 12px;align-items:center;border-bottom:5px solid var(--c);box-shadow:0 2px 10px rgba(30,27,75,.06);transition:transform .15s}
+.card:active{transform:scale(.97)}
+.card .icon{width:72px;height:72px;grid-row:span 2}
+.card h3{margin:0;font-size:22px;color:var(--c)}
+.card p{margin:0;color:var(--muted);font-size:16px}
+.card .lvrow{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.lvchip{background:#F5F3FF;border-radius:10px;padding:3px 8px;font-size:15px;font-weight:500}
+.lvchip .st{color:#F59E0B;letter-spacing:1px}
+.tag{margin-left:auto;font-size:13px;font-weight:600;color:#fff;background:var(--c);border-radius:8px;padding:2px 8px}
+.bar{height:10px;border-radius:99px;background:#EDE9FE;overflow:hidden;grid-column:1/-1}
+.bar i{display:block;height:100%;background:var(--c,#7C3AED);border-radius:99px;transition:width .6s}
+/* activity */
+.actbar{display:flex;align-items:center;gap:8px;padding:8px 10px;flex-wrap:wrap}
+.back{padding:8px 14px;border-radius:14px;background:#fff;font-weight:600;min-height:48px;box-shadow:0 2px 0 #DDD6FE}
+.act-title{font-weight:700;font-size:24px}
+.levels{display:flex;gap:6px;flex-wrap:wrap}
+.lvl{padding:6px 12px;border-radius:14px;background:#fff;font-weight:600;border:3px solid #DDD6FE;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05;font-size:16px}
+.lvl small{color:#F59E0B;font-size:14px;letter-spacing:1px}
+.lvl.on{background:var(--c);color:#fff;border-color:var(--c)}
+.lvl.on small{color:#FEF08A}
+.dots{display:flex;gap:6px;margin-left:auto;align-items:center}
+.dot{width:16px;height:16px;border-radius:50%;background:#DDD6FE;transition:all .3s}
+.dot.done{background:var(--green)}
+.dot.cur{background:var(--sun);transform:scale(1.25)}
+.act{flex:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr);gap:10px;padding:0 10px 10px;min-height:0}
+.actscreen{display:flex;flex-direction:column;min-height:100%}
+.stage{background:#fff;border-radius:var(--r);position:relative;touch-action:none;overflow:hidden;min-height:0;display:flex;box-shadow:0 2px 10px rgba(30,27,75,.06)}
+.stage>svg{width:100%;height:100%;display:block;touch-action:none}
+.panel{display:flex;flex-direction:column;gap:10px;min-height:0}
+.prompt{background:#fff;border-radius:var(--r);padding:12px 14px;border-left:8px solid var(--c)}
+.prompt h2{margin:0;font-size:25px;line-height:1.15}
+.prompt p{margin:4px 0 0;color:var(--muted);font-size:17px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.btn{padding:10px 18px;border-radius:16px;background:#fff;border:3px solid #C4B5FD;font-weight:600;font-size:21px;min-height:58px;box-shadow:0 4px 0 #C4B5FD;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #C4B5FD}
+.btn svg{width:40px;height:30px}
+.btn.go{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 4px 0 #166534}
+.btn.primary{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 4px 0 #4C1D95}
+.btn.good{background:#DCFCE7;border-color:var(--green);box-shadow:0 4px 0 #86EFAC}
+.btn.bad{background:#FFE4E6;border-color:#FB7185;box-shadow:0 4px 0 #FECDD3;animation:shake .4s;opacity:.75}
+.btn.sel{background:#EDE9FE;border-color:var(--purple);box-shadow:0 4px 0 #7C3AED}
+.btn.wide{flex:1 1 100%}
+.btn.next{flex:1 1 100%;font-size:24px;animation:pop .35s}
+.btn[disabled]{cursor:default}
+.mascot-row{margin-top:auto;display:flex;align-items:flex-end;gap:6px}
+.bubble{flex:1;background:#fff;border-radius:20px 20px 20px 6px;padding:10px 14px;font-size:19px;min-height:62px;border:3px solid #DDD6FE;display:flex;align-items:center}
+.bubble.good{border-color:#4ADE80;background:#F0FDF4}
+.bubble.hint{border-color:#FBBF24;background:#FFFBEB}
+.mascot{width:84px;height:84px;flex:none;overflow:visible}
+.polly{transform-box:fill-box;transform-origin:50% 90%}
+.mascot.happy .polly{animation:hop .7s}
+.mascot.think .polly{animation:tilt .9s}
+.mascot.bob .polly{animation:bob 3s ease-in-out infinite}
+.counter{font-size:20px;font-weight:600;background:#fff;border-radius:14px;padding:8px 12px;flex:1 1 100%}
+.readout{background:#fff;border-radius:16px;padding:10px 14px;flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:19px}
+.readout b{font-size:28px;display:block}
+.readout .big{grid-column:1/-1;font-size:30px;font-weight:700;text-align:center;color:var(--green)}
+/* sorter */
+.sorter{display:flex;flex-direction:column;width:100%;padding:10px;gap:10px}
+.tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-content:center;flex:1;min-height:120px}
+.tile{width:104px;height:104px;background:#F8FAFC;border-radius:18px;border:3px solid #E2E8F0;touch-action:none;cursor:grab;display:grid;place-items:center;position:relative;z-index:1;animation:pop .35s backwards}
+.tile svg{width:92%;height:92%;pointer-events:none}
+.tile.dragging{z-index:50;box-shadow:0 14px 24px rgba(30,27,75,.25);cursor:grabbing;border-color:#A78BFA}
+.tile.sel{border-color:var(--purple);box-shadow:0 0 0 5px #DDD6FE}
+.bins{display:grid;gap:10px}
+.bin{border:4px dashed #A78BFA;border-radius:18px;min-height:170px;background:#FAF5FF;padding:6px;display:flex;flex-direction:column;gap:4px;cursor:pointer;transition:background .2s}
+.bin-label{font-weight:700;text-align:center;font-size:19px;line-height:1.1}
+.bin-label small{display:block;font-weight:500;color:var(--muted);font-size:15px}
+.bin-items{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.bin .tile{width:56px;height:56px;border-width:2px;cursor:default;border-radius:12px}
+.bin.over{background:#EDE9FE;border-style:solid}
+.bin.shake{animation:shake .45s;background:#FFF1F2;border-color:#FB7185}
+/* keypad */
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1 1 100%}
+.kp-display{grid-column:1/-1;background:#fff;border-radius:16px;border:3px solid #C4B5FD;font-size:34px;font-weight:700;text-align:center;padding:4px;min-height:58px}
+.kp-display .kp-unit{font-size:20px;color:var(--muted);font-weight:500}
+.key{min-height:56px;font-size:26px;border-radius:14px;background:#fff;font-weight:700;box-shadow:0 4px 0 #DDD6FE}
+.key:active{transform:translateY(3px);box-shadow:0 1px 0 #DDD6FE}
+.key.ok{background:var(--green);color:#fff;box-shadow:0 4px 0 #166534;font-size:22px}
+.key.del{font-size:20px}
+/* svg bits */
+.pulse{animation:pulse 1.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.popin{animation:pop .35s backwards;transform-box:fill-box;transform-origin:center}
+.checker{cursor:grab}
+.checker.lift{filter:drop-shadow(0 3px 3px rgba(0,0,0,.3))}
+.hit{cursor:pointer}
+/* modal & toast */
+.modal-bg{position:fixed;inset:0;background:rgba(30,27,75,.55);display:grid;place-items:center;z-index:100;animation:fade .25s}
+.modal{background:#fff;border-radius:26px;padding:20px;max-width:460px;width:92%;text-align:center;animation:pop .4s}
+.modal h2{margin:4px 0;font-size:32px;color:var(--purple)}
+.modal .mascot{width:110px;height:110px}
+.bigstars{font-size:62px;color:#E5E7EB;letter-spacing:6px}
+.bigstars .on{color:#F59E0B;display:inline-block;animation:starIn .6s both}
+.mbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.modal input{font:inherit;font-size:28px;width:140px;text-align:center;border:3px solid #C4B5FD;border-radius:14px;padding:6px;margin:6px}
+.toast{position:fixed;top:4px;left:50%;transform:translateX(-50%);background:#fff;border:4px solid var(--sun);border-radius:20px;padding:8px 18px 8px 10px;display:flex;gap:10px;align-items:center;z-index:150;animation:drop .5s;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.toast small{display:block;color:var(--muted);font-size:14px}
+.toast b{font-size:21px}
+.toast.out{opacity:0;transition:opacity .4s}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:200}
+/* progress */
+.prog{padding:10px;display:flex;flex-direction:column;gap:10px}
+.box{background:#fff;border-radius:var(--r);padding:12px 14px}
+.box h2{margin:0 0 8px;font-size:24px}
+.statrow{display:flex;gap:8px;flex-wrap:wrap}
+.stat{flex:1;min-width:130px;background:#F5F3FF;border-radius:14px;padding:8px 12px;font-size:16px;color:var(--muted)}
+.stat b{display:block;font-size:30px;color:var(--ink)}
+.topic{display:grid;grid-template-columns:44px 1fr auto;gap:4px 10px;align-items:center;padding:6px 0;border-bottom:2px solid #F3F4F6}
+.topic svg{width:44px;height:44px;grid-row:span 2}
+.topic .nm{font-weight:600;font-size:19px}
+.topic .lv{font-size:15px;color:var(--muted);text-align:right}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.badge{background:#F5F3FF;border-radius:16px;padding:10px;text-align:center;font-size:14px;color:var(--muted)}
+.badge b{display:block;font-size:17px;color:var(--ink)}
+.badge svg{width:64px;height:64px}
+.badge.locked{opacity:.55;filter:grayscale(1)}
+.grown{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes hop{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-16px) scale(1.05,.95)}60%{transform:translateY(0) scale(1.08,.92)}}
+@keyframes tilt{0%,100%{transform:rotate(0)}30%{transform:rotate(-9deg)}70%{transform:rotate(7deg)}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:.6}}
+@keyframes starIn{0%{transform:scale(0) rotate(-90deg)}70%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1)}}
+@keyframes fade{from{opacity:0}}
+@keyframes drop{0%{transform:translate(-50%,-80px)}70%{transform:translate(-50%,8px)}100%{transform:translate(-50%,0)}}
+@media (max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){
+ .act{grid-template-columns:1fr;grid-template-rows:minmax(380px,48vh) auto}
+ .keypad{grid-template-columns:repeat(6,1fr)}
+ .key{min-height:60px}
+ .mascot{width:70px;height:70px}
+ .brand{font-size:19px}
+}
+@media (max-width:560px){.cards{grid-template-columns:1fr}.brand span{display:none}.dots{margin-left:0}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div id="app">
+ <header class="topbar">
+  <button class="brand" id="brand" aria-label="Home"></button>
+  <div class="spacer"></div>
+  <span class="pill" id="ptsPill" title="Points"></span>
+  <span class="pill streak" id="strkPill" title="Streak"></span>
+  <button class="iconbtn" id="trophyBtn" aria-label="Trophies and progress"></button>
+  <button class="iconbtn" id="muteBtn" aria-label="Sound on or off"></button>
+ </header>
+ <main id="main"></main>
+</div>
+<canvas id="confetti"></canvas>
+<noscript>Please turn on JavaScript to play Polly's Polygon Playground.</noscript>
+<script>
+(()=>{
+'use strict';
+const SVGNS='http://www.w3.org/2000/svg';
+const $=(q,r=document)=>r.querySelector(q);
+function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const k in attrs){const v=attrs[k];if(v===false||v==null)continue;if(k==='class')e.className=v;else if(k==='html')e.innerHTML=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?'':v);}kids.flat(3).forEach(c=>{if(c!=null&&c!==false)e.append(c.nodeType?c:document.createTextNode(String(c)))});return e;}
+function s(tag,attrs={},...kids){const e=document.createElementNS(SVGNS,tag);for(const k in attrs){const v=attrs[k];if(v==null)continue;if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v);}kids.flat(3).forEach(c=>{if(c!=null&&c!==false)e.append(c.nodeType?c:document.createTextNode(String(c)))});return e;}
+function frag(html){const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstElementChild;}
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const rf=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const cap=w=>w.charAt(0).toUpperCase()+w.slice(1);
+const D2R=Math.PI/180;
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1]];
+const norm=v=>{const l=Math.hypot(v[0],v[1])||1;return[v[0]/l,v[1]/l]};
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+const centerOf=el=>{const r=el.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}};
+function svgPt(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());return[q.x,q.y]}
+function clientOf(svg,v){const p=svg.createSVGPoint();p.x=v[0];p.y=v[1];const q=p.matrixTransform(svg.getScreenCTM());return{x:q.x,y:q.y}}
+function segDist(p,a,b){const ab=sub(b,a),ap=sub(p,a);const t=Math.max(0,Math.min(1,(ap[0]*ab[0]+ap[1]*ab[1])/(ab[0]*ab[0]+ab[1]*ab[1])));return dist(p,[a[0]+ab[0]*t,a[1]+ab[1]*t])}
+
+/* ---------- saved state ---------- */
+const KEY='pollysPolygonPlayground.v1';
+const fresh=()=>({points:0,streak:0,bestStreak:0,correct:0,prog:{},badges:{},muted:false});
+let st=fresh();
+try{const raw=localStorage.getItem(KEY);if(raw)st=Object.assign(fresh(),JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+
+/* ---------- sound (WebAudio, no files) ---------- */
+let actx=null;
+function tone(f,d=.12,type='sine',when=0,vol=.14){if(st.muted)return;try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();const t=actx.currentTime+when;const o=actx.createOscillator(),g=actx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+d+.05)}catch(e){}}
+const sfx={tap:()=>tone(700,.07,'triangle'),bit:()=>{tone(880,.08,'triangle');tone(1175,.1,'triangle',.06)},good:()=>{tone(523,.12,'triangle');tone(659,.12,'triangle',.1);tone(784,.22,'triangle',.2)},bad:()=>{tone(260,.16,'sine');tone(210,.22,'sine',.12)},win:()=>{[523,659,784,1047,1319].forEach((f,i)=>tone(f,.24,'triangle',i*.12))},badge:()=>{[784,988,1175,1568].forEach((f,i)=>tone(f,.16,'square',i*.09,.05))}};
+
+/* ---------- confetti (hand-made canvas) ---------- */
+const cv=$('#confetti'),cx=cv.getContext('2d');let parts=[],raf=0;
+function sizeCv(){const d=window.devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d}
+sizeCv();addEventListener('resize',sizeCv);
+const CCOL=['#7C3AED','#F59E0B','#10B981','#EF4444','#3B82F6','#EC4899','#FACC15','#14B8A6'];
+function confetti(x=innerWidth/2,y=innerHeight/3,n=60,sp=1){for(let i=0;i<n;i++){const a=rf(0,Math.PI*2),v=rf(2,9)*sp;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-rf(2,6),r:rf(6,11),c:pick(CCOL),rot:rf(0,6),vr:rf(-.3,.3),life:rf(55,105),k:rnd(0,2)})}if(!raf)raf=requestAnimationFrame(tick)}
+function tick(){const d=window.devicePixelRatio||1;cx.setTransform(d,0,0,d,0,0);cx.clearRect(0,0,innerWidth,innerHeight);for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.vx*=.985;p.rot+=p.vr;p.life--;cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot);cx.globalAlpha=Math.max(0,Math.min(1,p.life/25));cx.fillStyle=p.c;if(p.k===0)cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);else if(p.k===1){cx.beginPath();cx.arc(0,0,p.r/2.4,0,7);cx.fill()}else{cx.beginPath();cx.moveTo(0,-p.r/2);cx.lineTo(p.r/2,p.r/2);cx.lineTo(-p.r/2,p.r/2);cx.closePath();cx.fill()}cx.restore()}parts=parts.filter(p=>p.life>0&&p.y<innerHeight+50);if(parts.length)raf=requestAnimationFrame(tick);else{raf=0;cx.clearRect(0,0,innerWidth,innerHeight)}}
+function bigConfetti(){for(let i=0;i<6;i++)setTimeout(()=>confetti(rf(.15,.85)*innerWidth,rf(.12,.4)*innerHeight,55,1.25),i*140)}
+
+/* ---------- geometry ---------- */
+const rot=(pts,deg)=>{const c=Math.cos(deg*D2R),n=Math.sin(deg*D2R);return pts.map(([x,y])=>[x*c-y*n,x*n+y*c])};
+function fit(pts,R=42){const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);const k=2*R/Math.max(x1-x0,y1-y0);const mx=(x0+x1)/2,my=(y0+y1)/2;return pts.map(([x,y])=>[(x-mx)*k,(y-my)*k])}
+function regular(n,start=-90){const p=[];for(let i=0;i<n;i++){const a=(start+360*i/n)*D2R;p.push([Math.cos(a),Math.sin(a)])}return p}
+function angleAt(P,i){const n=P.length,p=P[i],a=P[(i-1+n)%n],b=P[(i+1)%n];const u=sub(a,p),v=sub(b,p);const c=(u[0]*v[0]+u[1]*v[1])/(Math.hypot(...u)*Math.hypot(...v));return Math.acos(Math.max(-1,Math.min(1,c)))/D2R}
+const angType=d=>Math.abs(d-90)<1.5?'right':d<90?'acute':'obtuse';
+function info(P){const n=P.length;const sides=P.map((p,i)=>dist(p,P[(i+1)%n]));const angles=P.map((_,i)=>angleAt(P,i));const dirs=P.map((p,i)=>sub(P[(i+1)%n],p));const parPairs=[];for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const a=dirs[i],b=dirs[j];if(Math.abs(a[0]*b[1]-a[1]*b[0])/(Math.hypot(...a)*Math.hypot(...b))<.012)parPairs.push([i,j])}return{n,sides,angles,right:angles.filter(a=>angType(a)==='right').length,par:parPairs.length,parPairs,allEqual:Math.max(...sides)/Math.min(...sides)<1.02}}
+function convex(P){let sg=0;const n=P.length;for(let i=0;i<n;i++){const a=P[i],b=P[(i+1)%n],c=P[(i+2)%n];const cr=(b[0]-a[0])*(c[1]-b[1])-(b[1]-a[1])*(c[0]-b[0]);if(Math.abs(cr)<1e-9)return false;const k=Math.sign(cr);if(!sg)sg=k;else if(k!==sg)return false}return true}
+const clearAngles=(P,allowRight=true)=>info(P).angles.every(a=>Math.abs(a-90)<1.5?allowRight:Math.abs(a-90)>=12);
+function quadType(I){if(I.n!==4)return null;if(I.par>=2){const r=I.right===4,e=I.allEqual;return r&&e?'square':r?'rectangle':e?'rhombus':'parallelogram'}return I.par===1?'trapezoid':'quadrilateral'}
+const QNAMES={square:['polygon','quadrilateral','parallelogram','rectangle','rhombus','square'],rectangle:['polygon','quadrilateral','parallelogram','rectangle'],rhombus:['polygon','quadrilateral','parallelogram','rhombus'],parallelogram:['polygon','quadrilateral','parallelogram'],trapezoid:['polygon','quadrilateral','trapezoid'],quadrilateral:['polygon','quadrilateral']};
+const PNAME={3:'triangle',4:'quadrilateral',5:'pentagon',6:'hexagon',7:'heptagon',8:'octagon',9:'nonagon',10:'decagon'};
+const PREFIX='tri = 3, quad = 4, penta = 5, hexa = 6, hepta = 7, octa = 8, deca = 10';
+function irregular(n){for(let k=0;k<300;k++){const p=[];for(let i=0;i<n;i++){const a=(-90+360*i/n+rf(-12,12))*D2R,r=rf(.82,1.14);p.push([Math.cos(a)*r,Math.sin(a)*r])}if(convex(p)&&clearAngles(p,false)&&info(p).par===0)return p}return regular(n)}
+const MK={
+ square:()=>[[0,0],[1,0],[1,1],[0,1]],
+ rectangle:()=>{const y=rf(.45,.68);return[[0,0],[1,0],[1,y],[0,y]]},
+ rhombus:()=>{const t=rf(55,68)*D2R;return[[0,0],[1,0],[1+Math.cos(t),Math.sin(t)],[Math.cos(t),Math.sin(t)]]},
+ parallelogram:()=>{const t=rf(55,68)*D2R,b=rf(.5,.65);return[[0,0],[1,0],[1+b*Math.cos(t),b*Math.sin(t)],[b*Math.cos(t),b*Math.sin(t)]]},
+ trapezoid:()=>{const t=rf(.35,.55),o=rf(.2,1-t-.2),y=rf(.45,.6);return[[0,y],[1,y],[o+t,0],[o,0]]},
+ rightTrapezoid:()=>{const t=rf(.45,.62),y=rf(.5,.62);return[[0,0],[t,0],[1,y],[0,y]]},
+ quad:()=>{for(let k=0;k<400;k++){const p=[0,1,2,3].map(i=>{const a=(45+i*90+rf(-28,28))*D2R,r=rf(.6,1);return[Math.cos(a)*r,Math.sin(a)*r]});if(!convex(p))continue;const ok=[[0,2],[1,3]].every(([i,j])=>{const a=sub(p[(i+1)%4],p[i]),b=sub(p[(j+1)%4],p[j]);return Math.abs(a[0]*b[1]-a[1]*b[0])/(Math.hypot(...a)*Math.hypot(...b))>.2});if(!ok||!clearAngles(p,false))continue;const sd=info(p).sides;if(Math.max(...sd)/Math.min(...sd)<1.25)continue;return p}return[[0,0],[1,.2],[.7,1],[.1,.6]]},
+ oneRight:()=>[[0,0],[1,0],[1,.8],[.3,.55]],
+ equilateral:()=>regular(3),
+ rightTri:()=>{const w=rf(.6,1),y=rf(.6,1);return[[0,0],[0,y],[w,y]]},
+ isosceles:()=>{const y=rf(1.1,1.3);return[[.5,0],[1,y],[0,y]]},
+ obtuseTri:()=>{const a=rf(.3,.7),y=rf(.2,.28);return[[0,y],[1,y],[a,0]]},
+ scalene:()=>{for(let k=0;k<300;k++){const p=[[0,0],[rf(.7,1),rf(-.1,.2)],[rf(.1,.6),rf(.6,1)]];const I=info(p);if(I.angles.every(a=>a>32&&a<78)){const d=I.sides.slice().sort((a,b)=>a-b);if(d[1]/d[0]>1.12&&d[2]/d[1]>1.12)return p}}return[[0,0],[1,.1],[.35,.8]]},
+ house:()=>[[0,.3],[.5,0],[1,.3],[1,1],[0,1]],
+ pentagon:()=>regular(5),hexagon:()=>regular(6),heptagon:()=>regular(7),octagon:()=>regular(8),nonagon:()=>regular(9),decagon:()=>regular(10),
+ irr5:()=>irregular(5),irr6:()=>irregular(6)
+};
+const ST='stroke="#1E1B4B" stroke-linejoin="round" stroke-linecap="round"';
+const NONPOLY={
+ circle:{why:'A circle is round. It has no straight sides and no corners, so it is NOT a polygon.',short:'circles are round, not straight',draw:(f,w)=>s('circle',{cx:0,cy:0,r:40,fill:f,stroke:'#1E1B4B','stroke-width':w})},
+ oval:{why:'An oval is curved all the way around, so it is NOT a polygon.',short:'ovals are curved',draw:(f,w)=>s('ellipse',{cx:0,cy:0,rx:44,ry:27,fill:f,stroke:'#1E1B4B','stroke-width':w})},
+ open:{why:'This shape is OPEN. Its sides do not close up, so it is NOT a polygon.',short:'it is open, not closed',draw:(f,w)=>s('path',{d:'M-30 34 L-40 -28 L32 -36 L40 26',fill:'none',stroke:'#1E1B4B','stroke-width':w*1.2,'stroke-linecap':'round','stroke-linejoin':'round'})},
+ curvy:{why:'One side is curved. Polygons have ONLY straight sides, so this is NOT a polygon.',short:'it has a curved side',draw:(f,w)=>s('path',{d:'M-24 -40 A40 40 0 0 1 -24 40 Z',transform:'translate(8 0)',fill:f,stroke:'#1E1B4B','stroke-width':w,'stroke-linejoin':'round'})},
+ wavy:{why:'The bottom side is wiggly, not straight, so this is NOT a polygon.',short:'it has a wiggly side',draw:(f,w)=>s('path',{d:'M-40 -28 L40 -28 L40 26 Q20 6 0 26 Q-20 46 -40 26 Z',fill:f,stroke:'#1E1B4B','stroke-width':w,'stroke-linejoin':'round'})}
+};
+const REG=['pentagon','hexagon','heptagon','octagon','nonagon','decagon','equilateral'];
+const rr=k=>REG.includes(k)?pick([0,0,rnd(0,359)]):pick([0,0,0,90,180,20,-20,35]);
+function poly(key,rd){if(rd==null)rd=rr(key);const pts=fit(rot(MK[key](),rd));return{key,polygon:true,pts,I:info(pts)}}
+const nonpoly=key=>({key,polygon:false});
+const TRI=['equilateral','rightTri','isosceles','obtuseTri','scalene'];
+const QUAD=['square','rectangle','rhombus','parallelogram','trapezoid','rightTrapezoid','quad','oneRight'];
+function byN(n){const k=n===3?pick(TRI):n===4?pick(QUAD):n===5?pick(['pentagon','irr5','house']):n===6?pick(['hexagon','irr6']):PNAME[n];return k}
+const FILLS=['#C4B5FD','#FDE68A','#A7F3D0','#FBCFE8','#BFDBFE','#FED7AA','#99F6E4','#DDD6FE'];
+function drawShape(sh,fill=pick(FILLS),w=3){if(sh.polygon)return s('polygon',{points:sh.pts.map(p=>p.map(v=>v.toFixed(2)).join(',')).join(' '),fill,stroke:'#1E1B4B','stroke-width':w,'stroke-linejoin':'round'});return NONPOLY[sh.key].draw(fill,w)}
+function rightMark(P,i,size=7,color='#1E1B4B',w=1){const n=P.length,p=P[i];const u=norm(sub(P[(i-1+n)%n],p)),v=norm(sub(P[(i+1)%n],p));const a=[p[0]+u[0]*size,p[1]+u[1]*size],b=[a[0]+v[0]*size,a[1]+v[1]*size],c=[p[0]+v[0]*size,p[1]+v[1]*size];return s('path',{d:`M${a} L${b} L${c}`,fill:'none',stroke:color,'stroke-width':w,class:'popin'})}
+function ticks(P,w=1){const I=info(P),groups=[];I.sides.forEach((L,i)=>{let g=groups.find(g=>Math.abs(g.L-L)/L<.02);if(!g){g={L,idx:[]};groups.push(g)}g.idx.push(i)});const out=s('g');let k=0;groups.filter(g=>g.idx.length>1).forEach(g=>{k++;g.idx.forEach(i=>{const a=P[i],b=P[(i+1)%P.length];const m=[(a[0]+b[0])/2,(a[1]+b[1])/2],d=norm(sub(b,a)),nn=[-d[1],d[0]];for(let t=0;t<k;t++){const off=(t-(k-1)/2)*3;const c=[m[0]+d[0]*off,m[1]+d[1]*off];out.append(s('line',{x1:c[0]-nn[0]*4,y1:c[1]-nn[1]*4,x2:c[0]+nn[0]*4,y2:c[1]+nn[1]*4,stroke:'#1E1B4B','stroke-width':w}))}})});return out}
+function wedge(P,i,r=12,fill='#FB7185'){const n=P.length,p=P[i];const u=norm(sub(P[(i-1+n)%n],p)),v=norm(sub(P[(i+1)%n],p));const sw=(u[0]*v[1]-u[1]*v[0])>0?1:0;return s('path',{d:`M${p} L${p[0]+u[0]*r},${p[1]+u[1]*r} A${r} ${r} 0 0 ${sw} ${p[0]+v[0]*r},${p[1]+v[1]*r} Z`,fill,'fill-opacity':.6,stroke:'#BE123C','stroke-width':.8})}
+
+/* ---------- mascot ---------- */
+const MASCOT=`<svg class="mascot CLS" viewBox="0 -9 100 109" aria-hidden="true"><g class="polly"><line x1="50" y1="9" x2="50" y2="1" stroke="#5B21B6" stroke-width="3"/><polygon points="50,-7 52.4,-2 57.6,-1.6 53.6,1.8 55,7 50,4 45,7 46.4,1.8 42.4,-1.6 47.6,-2" fill="#FACC15" stroke="#CA8A04" stroke-width="1"/><polygon points="50,9 87,30 87,72 50,93 13,72 13,30" fill="#8B5CF6" stroke="#4C1D95" stroke-width="4" stroke-linejoin="round"/><polygon points="50,15 81,33 50,33 19,33" fill="#A78BFA" opacity=".6"/><ellipse cx="37" cy="48" rx="8.5" ry="10.5" fill="#fff"/><ellipse cx="63" cy="48" rx="8.5" ry="10.5" fill="#fff"/><circle cx="38.5" cy="50" r="4.8" fill="#1E1B4B"/><circle cx="64.5" cy="50" r="4.8" fill="#1E1B4B"/><circle cx="40" cy="48" r="1.6" fill="#fff"/><circle cx="66" cy="48" r="1.6" fill="#fff"/><circle cx="25" cy="63" r="5" fill="#F9A8D4"/><circle cx="75" cy="63" r="5" fill="#F9A8D4"/><path d="M39 64 Q50 76 61 64" stroke="#1E1B4B" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M13 58 Q3 52 6 42" stroke="#4C1D95" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M87 58 Q97 52 94 42" stroke="#4C1D95" stroke-width="4" fill="none" stroke-linecap="round"/></g></svg>`;
+const mascotEl=(cls='')=>frag(MASCOT.replace('CLS',cls));
+const ICON={
+ gem:'<svg viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z" fill="#A78BFA" stroke="#5B21B6" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 9h20M9 3l3 18 3-18" stroke="#5B21B6" stroke-width="1" fill="none"/></svg>',
+ flame:'<svg viewBox="0 0 24 24"><path d="M12 2c4 5 7 8 6 13a6 6 0 0 1-12 0c0-3 2-5 3-7 0 2 1 3 2 3 0-3-1-5 1-9z" fill="#F97316" stroke="#C2410C" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 13c2 2 3 3 2 5a2.2 2.2 0 0 1-4 0c0-2 1-3 2-5z" fill="#FDE047"/></svg>',
+ trophy:'<svg viewBox="0 0 24 24"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="#FACC15" stroke="#A16207" stroke-width="1.5"/><path d="M7 5H3c0 3 2 5 4 5M17 5h4c0 3-2 5-4 5" fill="none" stroke="#A16207" stroke-width="1.5"/><path d="M10 13h4v4h-4zM7 21h10l-1-4H8z" fill="#FACC15" stroke="#A16207" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+ soundOn:'<svg viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3z" fill="#7C3AED"/><path d="M16 8a5 5 0 0 1 0 8M18.5 5a9 9 0 0 1 0 14" stroke="#7C3AED" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
+ soundOff:'<svg viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3z" fill="#9CA3AF"/><path d="M16 9l6 6M22 9l-6 6" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round"/></svg>'
+};
+const ACTICON={
+ sort:'<svg viewBox="0 0 72 72"><rect x="4" y="40" width="30" height="28" rx="6" fill="#EDE9FE" stroke="#7C3AED" stroke-width="3" stroke-dasharray="5 3"/><rect x="38" y="40" width="30" height="28" rx="6" fill="#EDE9FE" stroke="#7C3AED" stroke-width="3" stroke-dasharray="5 3"/><polygon points="19,4 32,26 6,26" fill="#FDE68A" stroke="#1E1B4B" stroke-width="2.5" stroke-linejoin="round"/><circle cx="53" cy="17" r="12" fill="#A7F3D0" stroke="#1E1B4B" stroke-width="2.5"/><path d="M19 30v6M53 32v4" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"/></svg>',
+ tap:'<svg viewBox="0 0 72 72"><polygon points="36,8 64,28 54,62 18,62 8,28" fill="#99F6E4" stroke="#1E1B4B" stroke-width="3" stroke-linejoin="round"/><g fill="#F59E0B" stroke="#fff" stroke-width="2"><circle cx="36" cy="8" r="6"/><circle cx="64" cy="28" r="6"/><circle cx="54" cy="62" r="6"/><circle cx="18" cy="62" r="6"/><circle cx="8" cy="28" r="6"/></g></svg>',
+ angle:'<svg viewBox="0 0 72 72"><path d="M12 60 L28 60 A16 16 0 0 0 22.4 47.8Z" fill="#FBCFE8" stroke="#DB2777" stroke-width="2"/><path d="M12 60H66M12 60L48 14" stroke="#1E1B4B" stroke-width="5" stroke-linecap="round"/><circle cx="48" cy="14" r="7" fill="#E11D48" stroke="#fff" stroke-width="2.5"/><rect x="40" y="34" width="18" height="18" fill="#FDE047" fill-opacity=".8" stroke="#A16207" stroke-width="2"/></svg>',
+ quad:'<svg viewBox="0 0 72 72"><rect x="6" y="6" width="26" height="26" fill="#BFDBFE" stroke="#1E1B4B" stroke-width="2.5"/><polygon points="52,4 68,19 52,34 36,19" fill="#FBCFE8" stroke="#1E1B4B" stroke-width="2.5" stroke-linejoin="round"/><polygon points="10,66 22,42 62,42 50,66" fill="#FDE68A" stroke="#1E1B4B" stroke-width="2.5" stroke-linejoin="round"/></svg>',
+ peri:'<svg viewBox="0 0 72 72"><rect x="10" y="14" width="52" height="40" rx="2" fill="#FEF3C7" stroke="#D97706" stroke-width="4" stroke-dasharray="8 4"/><circle cx="10" cy="14" r="6" fill="#D97706"/><path d="M24 9h14M33 4l5 5-5 5" stroke="#1E1B4B" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="36" y="40" text-anchor="middle" font-size="16" font-weight="700" fill="#92400E">P</text></svg>',
+ area:'<svg viewBox="0 0 72 72"><g stroke="#166534" stroke-width="2"><rect x="8" y="30" width="16" height="16" fill="#86EFAC"/><rect x="24" y="30" width="16" height="16" fill="#86EFAC"/><rect x="40" y="30" width="16" height="16" fill="#86EFAC"/><rect x="8" y="46" width="16" height="16" fill="#86EFAC"/><rect x="24" y="46" width="16" height="16" fill="#86EFAC"/><rect x="40" y="46" width="16" height="16" fill="#86EFAC"/><rect x="44" y="6" width="16" height="16" fill="#4ADE80" transform="rotate(12 52 14)"/></g><path d="M52 24v4" stroke="#166534" stroke-width="3" stroke-linecap="round"/></svg>'
+};
+/* ---------- badges ---------- */
+const ACT_IDS=['sort','tap','angle','quad','peri','area'];
+const levelStars=(id,l)=>(st.prog[id]||[0,0,0])[l]||0;
+const actDone=id=>[0,1,2].every(l=>levelStars(id,l)>0);
+const totalStars=()=>ACT_IDS.reduce((t,id)=>t+[0,1,2].reduce((a,l)=>a+levelStars(id,l),0),0);
+const BADGES=[
+ {id:'first',name:'First Shape!',desc:'Get your first answer right',g:'star',c:'#F59E0B',test:()=>st.correct>=1},
+ {id:'b_sort',name:'Sorting Superstar',desc:'Finish all 3 Shape Sorter levels',g:'tri',c:'#7C3AED',test:()=>actDone('sort')},
+ {id:'b_tap',name:'Vertex Detective',desc:'Finish all 3 Tap Detective levels',g:'hex',c:'#0D9488',test:()=>actDone('tap')},
+ {id:'b_angle',name:'Angle Ace',desc:'Finish all 3 Angle Lab levels',g:'angle',c:'#E11D48',test:()=>actDone('angle')},
+ {id:'b_quad',name:'Quad Champion',desc:'Finish all 3 Quad Quest levels',g:'quad',c:'#2563EB',test:()=>actDone('quad')},
+ {id:'b_peri',name:'Perimeter Pro',desc:'Finish all 3 Perimeter Path levels',g:'ruler',c:'#D97706',test:()=>actDone('peri')},
+ {id:'b_area',name:'Area Architect',desc:'Finish all 3 Area Builder levels',g:'grid',c:'#16A34A',test:()=>actDone('area')},
+ {id:'streak5',name:'Hot Streak',desc:'5 right answers in a row',g:'flame',c:'#EA580C',test:()=>st.bestStreak>=5},
+ {id:'streak10',name:'On Fire!',desc:'10 right answers in a row',g:'flame',c:'#DC2626',test:()=>st.bestStreak>=10},
+ {id:'perfect',name:'Perfect Level',desc:'Get 3 stars on any level',g:'star3',c:'#CA8A04',test:()=>ACT_IDS.some(id=>[0,1,2].some(l=>levelStars(id,l)===3))},
+ {id:'p100',name:'100 Club',desc:'Earn 100 points',g:'100',c:'#0891B2',test:()=>st.points>=100},
+ {id:'p500',name:'Point Powerhouse',desc:'Earn 500 points',g:'500',c:'#9D174D',test:()=>st.points>=500},
+ {id:'stars27',name:'Star Collector',desc:'Collect 27 stars',g:'star',c:'#DB2777',test:()=>totalStars()>=27},
+ {id:'master',name:'Shape Master',desc:'Earn all 6 topic badges',g:'crown',c:'#6D28D9',test:()=>ACT_IDS.every(actDone)}
+];
+const GLYPH={
+ star:'<polygon points="0,-11 3.2,-3.5 11,-3.4 4.8,1.6 7,9.5 0,5 -7,9.5 -4.8,1.6 -11,-3.4 -3.2,-3.5" fill="#fff"/>',
+ tri:'<polygon points="0,-10 10,8 -10,8" fill="#fff"/>',
+ hex:'<polygon points="0,-10 8.7,-5 8.7,5 0,10 -8.7,5 -8.7,-5" fill="none" stroke="#fff" stroke-width="2.5"/><g fill="#fff"><circle cx="0" cy="-10" r="2.6"/><circle cx="8.7" cy="5" r="2.6"/><circle cx="-8.7" cy="5" r="2.6"/></g>',
+ angle:'<path d="M-9 8H11M-9 8L6 -10" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M-1 8A8 8 0 0 0 -3.9 1.8" stroke="#fff" stroke-width="2" fill="none"/>',
+ quad:'<polygon points="0,-10 10,0 0,10 -10,0" fill="#fff"/>',
+ ruler:'<rect x="-11" y="-5" width="22" height="10" rx="1.5" fill="#fff"/><path d="M-7 -5v4M-3 -5v6M1 -5v4M5 -5v6" stroke="currentColor" stroke-width="1.5"/>',
+ grid:'<g fill="#fff"><rect x="-10" y="-10" width="9" height="9"/><rect x="1" y="-10" width="9" height="9"/><rect x="-10" y="1" width="9" height="9"/><rect x="1" y="1" width="9" height="9"/></g>',
+ flame:'<path d="M0 -12c5 6 9 9 8 15a8 8 0 0 1-16 0c0-4 3-6 4-9 0 3 1 4 2 4 0-4-1-6 2-10z" fill="#fff"/>',
+ star3:'<g fill="#fff"><polygon points="0,-11 2,-6 7,-6 3,-3 4.5,2 0,-1 -4.5,2 -3,-3 -7,-6 -2,-6"/><polygon points="-7,2 -5.5,5.5 -2,5.6 -4.6,7.8 -3.7,11 -7,9 -10.3,11 -9.4,7.8 -12,5.6 -8.5,5.5"/><polygon points="7,2 8.5,5.5 12,5.6 9.4,7.8 10.3,11 7,9 3.7,11 4.6,7.8 2,5.6 5.5,5.5"/></g>',
+ '100':'<text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="inherit">100</text>',
+ '500':'<text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="inherit">500</text>',
+ crown:'<path d="M-11 7V-6l5.5 6L0 -10l5.5 10L11 -6V7z" fill="#fff" stroke="#fff" stroke-linejoin="round"/>'
+};
+const badgeIcon=(b,size=64)=>frag(`<svg viewBox="-22 -22 44 44" width="${size}" height="${size}" style="color:${b.c}"><path d="M-9 14l-5 8 6-1 3 5 4-10zM9 14l5 8-6-1-3 5-4-10z" fill="#FCA5A5"/><circle r="18" fill="${b.c}" stroke="#FDE68A" stroke-width="3"/><circle r="14.5" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.2"/>${GLYPH[b.g]}</svg>`);
+const toastQ=[];let toasting=false;
+function checkBadges(){BADGES.forEach(b=>{if(!st.badges[b.id]&&b.test()){st.badges[b.id]=Date.now();toastQ.push(b)}});save();if(!toasting)nextToast()}
+function nextToast(){const b=toastQ.shift();if(!b){toasting=false;return}toasting=true;sfx.badge();const t=h('div',{class:'toast',role:'status'},badgeIcon(b,54),h('div',{},h('small',{},'New badge!'),h('b',{},b.name)));document.body.append(t);confetti(innerWidth/2,95,40,.9);setTimeout(()=>{t.classList.add('out');setTimeout(()=>{t.remove();nextToast()},420)},2300)}
+
+/* ---------- HUD ---------- */
+const main=$('#main');
+$('#brand').append(mascotEl('bob'),h('span',{html:"Polly's Polygon <b>Playground</b>"}));
+$('#brand').onclick=()=>showHome();
+$('#trophyBtn').innerHTML=ICON.trophy;$('#trophyBtn').onclick=()=>showProgress();
+function updHudMute(){$('#muteBtn').innerHTML=st.muted?ICON.soundOff:ICON.soundOn}
+$('#muteBtn').onclick=()=>{st.muted=!st.muted;save();updHudMute();sfx.tap()};
+let lastPts=st.points;
+function updateHud(){$('#ptsPill').innerHTML=ICON.gem+`<span>${st.points}</span>`;$('#strkPill').innerHTML=ICON.flame+`<span>${st.streak}</span>`;if(st.points!==lastPts){const p=$('#ptsPill');p.classList.remove('pop');void p.offsetWidth;p.classList.add('pop');lastPts=st.points}}
+updHudMute();updateHud();
+
+/* ---------- modal ---------- */
+function modal(content){closeModal();const bg=h('div',{class:'modal-bg'},content);document.body.append(bg);return bg}
+function closeModal(){document.querySelectorAll('.modal-bg').forEach(m=>m.remove())}
+
+/* ---------- round engine ---------- */
+let run=null,keyHandler=null;
+addEventListener('keydown',e=>{if(keyHandler&&!document.querySelector('.modal-bg'))keyHandler(e)});
+const CHEERS=['Awesome!','You got it!','Super!','Brilliant!','Way to go!','Shape-tastic!','Nailed it!','Wonderful!'];
+function say(text,mood=''){if(!run)return;run.bubble.textContent=text;run.bubble.className='bubble'+(mood==='happy'?' good':mood==='hint'?' hint':'');const m=run.mascot;m.classList.remove('happy','think');void m.getBoundingClientRect();if(mood==='happy')m.classList.add('happy');if(mood==='hint')m.classList.add('think')}
+const api={
+ get stage(){return run.stage},get controls(){return run.controls},
+ ask(t,p=''){run.prompt.querySelector('h2').textContent=t;run.prompt.querySelector('p').textContent=p},
+ say,
+ hint:t=>say(t,'hint'),
+ get tries(){return run.roundMistakes},
+ bit(x,y){if(!run)return;sfx.bit();st.points+=2;save();updateHud();confetti(x,y,14,.6)},
+ good(msg,x,y){if(!run||run.solved)return;run.solved=true;st.correct++;st.streak++;st.bestStreak=Math.max(st.bestStreak,st.streak);let pts=10+(run.roundMistakes===0?5:0);if(st.streak>0&&st.streak%5===0)pts+=10;st.points+=pts;save();sfx.good();confetti(x??innerWidth/2,y??innerHeight/2,70);say(`${pick(CHEERS)} ${msg} (+${pts})`,'happy');updateHud();run.dots.children[run.round].className='dot done';checkBadges();showNext()},
+ bad(t){if(!run||run.solved)return;run.mistakes++;run.roundMistakes++;st.streak=0;save();sfx.bad();say(t,'hint');updateHud()}
+};
+function showNext(){const last=run.round===4;const b=h('button',{class:'btn go next',id:'nextBtn',onclick:()=>{if(last)levelDone();else{run.round++;startRound()}}},last?'Finish level ★':'Next ▶');run.controls.append(b);setTimeout(()=>{if(b.isConnected)b.scrollIntoView({block:'nearest',behavior:'smooth'})},50)}
+function showActivity(id,lvl=0){closeModal();const act=ACTS.find(a=>a.id===id);main.innerHTML='';main.scrollTop=0;
+ const tabs=h('div',{class:'levels'},act.levels.map((n,i)=>h('button',{class:'lvl'+(i===lvl?' on':''),onclick:()=>showActivity(id,i)},`${i+1}. ${n}`,h('small',{},starStr(levelStars(id,i))))));
+ const dots=h('div',{class:'dots',title:'Rounds'},[0,1,2,3,4].map(()=>h('span',{class:'dot'})));
+ const bar=h('div',{class:'actbar'},h('button',{class:'back',onclick:()=>showHome()},'← Home'),h('div',{class:'act-title',style:`color:${act.color}`},act.title),tabs,dots);
+ const stage=h('div',{class:'stage',id:'stage'});
+ const prompt=h('div',{class:'prompt'},h('h2'),h('p'));
+ const controls=h('div',{class:'controls',id:'controls'});
+ const mascot=mascotEl('');const bubble=h('div',{class:'bubble',id:'bubble'});
+ const panel=h('div',{class:'panel'},prompt,controls,h('div',{class:'mascot-row'},mascot,bubble));
+ const scr=h('div',{class:'actscreen',style:`--c:${act.color}`},bar,h('div',{class:'act'},stage,panel));
+ main.append(scr);
+ run={act,lvl,round:0,mistakes:0,roundMistakes:0,solved:false,stage,prompt,controls,bubble,mascot,dots};
+ startRound()}
+function startRound(){run.roundMistakes=0;run.solved=false;keyHandler=null;run.stage.innerHTML='';run.controls.innerHTML='';run.dbg={};
+ [...run.dots.children].forEach((d,i)=>d.className='dot'+(i<run.round?' done':i===run.round?' cur':''));
+ run.act.round(run.lvl,api);
+ if(run.round===0&&!run.bubble.textContent)say(run.act.tips[run.lvl]);else if(!run.solved)say(run.round===0?run.act.tips[run.lvl]:pick(['Here comes another one!','You can do it!','Ready? Go!','Keep it up!','Next challenge!']))}
+const starStr=n=>'★'.repeat(n)+'☆'.repeat(3-n);
+function levelDone(){const a=run.act,l=run.lvl,m=run.mistakes;const stars=m<=1?3:m<=4?2:1;st.prog[a.id]=st.prog[a.id]||[0,0,0];st.prog[a.id][l]=Math.max(st.prog[a.id][l]||0,stars);const bonus=stars*10;st.points+=bonus;save();updateHud();sfx.win();bigConfetti();
+ modal(h('div',{class:'modal',id:'levelModal'},mascotEl('happy'),h('h2',{},stars===3?'Perfect!':stars===2?'Great job!':'Level complete!'),h('div',{class:'bigstars'},[0,1,2].map(i=>h('span',{class:i<stars?'on':'',style:`animation-delay:${.15+i*.25}s`},'★'))),h('p',{},`${a.title}: ${a.levels[l]}`,h('br'),`+${bonus} bonus points!`),h('div',{class:'mbtns'},l<2?h('button',{class:'btn go',onclick:()=>showActivity(a.id,l+1)},'Next level ▶'):null,h('button',{class:'btn',onclick:()=>showActivity(a.id,l)},'Play again'),h('button',{class:'btn',onclick:()=>{closeModal();showHome()}},'Home'))));
+ keyHandler=null;checkBadges()}
+
+/* ---------- shared widgets ---------- */
+function dragify(el,{onTap,onMove,onDrop,disabled}){let sx=0,sy=0,moved=false,active=false,pid=null;
+ el.addEventListener('pointerdown',e=>{if(disabled&&disabled())return;e.preventDefault();active=true;moved=false;sx=e.clientX;sy=e.clientY;pid=e.pointerId;try{el.setPointerCapture(pid)}catch(_){}el.style.transition='none'});
+ el.addEventListener('pointermove',e=>{if(!active||e.pointerId!==pid)return;e.preventDefault();const dx=e.clientX-sx,dy=e.clientY-sy;if(!moved&&Math.hypot(dx,dy)>8){moved=true;el.classList.add('dragging')}if(moved){el.style.transform=`translate(${dx}px,${dy}px) scale(1.08)`;onMove&&onMove(e.clientX,e.clientY)}});
+ el.addEventListener('pointerup',e=>{if(!active||e.pointerId!==pid)return;active=false;el.classList.remove('dragging');if(!moved){el.style.transform='';onTap&&onTap();return}const ok=onDrop&&onDrop(e.clientX,e.clientY);if(!ok){el.style.transition='transform .4s cubic-bezier(.3,1.6,.5,1)';el.style.transform=''}});
+ el.addEventListener('pointercancel',()=>{if(!active)return;active=false;el.classList.remove('dragging');el.style.transition='transform .3s';el.style.transform=''})}
+const inRect=(el,x,y)=>{const r=el.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom};
+// yellow "corner checker" (a paper square corner) that snaps onto corners
+function addChecker(svg,targets,home,size=20,onTap=null){const g=s('g',{class:'checker',id:'checker'});
+ g.append(s('rect',{x:-8,y:-8,width:size+18,height:size+18,fill:'transparent'}),s('rect',{x:0,y:0,width:size,height:size,fill:'#FDE047','fill-opacity':.65,stroke:'#A16207','stroke-width':.8}),s('path',{d:`M${size+7} 0 L0 0 L0 ${size+7}`,fill:'none',stroke:'#A16207','stroke-width':2.4,'stroke-linecap':'round'}),s('text',{x:0,y:size*.11,'text-anchor':'middle','font-size':size*.3,fill:'#713F12','font-weight':700,class:'ck-label'},'90°'));const lbl=g.querySelector('.ck-label');
+ let pos=home.slice(),r=0,f=1,drag=null;const set=()=>{g.setAttribute('transform',`translate(${pos[0].toFixed(2)} ${pos[1].toFixed(2)}) rotate(${r.toFixed(2)}) scale(1 ${f})`);lbl.setAttribute('transform',`translate(${size/2} ${size/2}) scale(1 ${f}) rotate(${(-r).toFixed(2)})`)};set();svg.append(g);
+ g.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();const p=svgPt(svg,e);drag={dx:p[0]-pos[0],dy:p[1]-pos[1],id:e.pointerId,start:p,moved:false,r0:r,f0:f};try{g.setPointerCapture(e.pointerId)}catch(_){}g.classList.add('lift')});
+ g.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;e.preventDefault();const p=svgPt(svg,e);if(!drag.moved&&dist(p,drag.start)>2.5){drag.moved=true;r=0;f=1;sfx.tap()}if(drag.moved){pos=[p[0]-drag.dx,p[1]-drag.dy];set()}});
+ const up=e=>{if(!drag)return;const d0=drag;drag=null;if(!d0.moved){g.classList.remove('lift');if(onTap&&e&&e.type==='pointerup')onTap(d0.start);return}g.classList.remove('lift');let best=null,bd=17;targets().forEach(t=>{const d=dist(t.v,pos);if(d<bd){bd=d;best=t}});if(best){pos=best.v.slice();const u=norm(sub(best.a,best.v)),w=norm(sub(best.b,best.v));r=Math.atan2(u[1],u[0])/D2R;f=(u[0]*w[1]-u[1]*w[0])>0?1:-1;set();sfx.tap();say('Compare: does the corner match the yellow square corner EXACTLY, or is it smaller or bigger?')}};
+ g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up);svg.append(g);return g}
+function keypad(onEnter,unit=''){let val='';const disp=h('div',{class:'kp-display',id:'kpDisplay'});const upd=()=>{disp.innerHTML='';disp.append(h('span',{class:'kp-val'},val||'?'),unit?h('span',{class:'kp-unit'},' '+unit):'')};upd();
+ const box=h('div',{class:'keypad',id:'keypad'},disp);
+ const press=k=>{if(!run||run.solved)return;if(k==='del')val=val.slice(0,-1);else if(k==='ok'){if(val==='')return;const ok=onEnter(+val);if(!ok)val=''}else if(val.length<3)val=(val==='0'?'':val)+k;sfx.tap();upd()};
+ ['1','2','3','4','5','6','7','8','9','del','0','ok'].forEach(k=>box.append(h('button',{class:'key'+(k==='ok'?' ok':k==='del'?' del':''),'data-k':k,onclick:()=>press(k)},k==='ok'?'Check ✓':k==='del'?'Erase':k)));
+ keyHandler=e=>{if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('del');else if(e.key==='Enter')press('ok')};
+ run.controls.append(box);return box}
+function choiceButtons(opts,onPick){return opts.map(o=>{const b=h('button',{class:'btn','data-v':String(o.v)},o.icon?frag(o.icon):null,o.label);b.onclick=()=>{if(run.solved||b.disabled)return;onPick(o.v,b)};run.controls.append(b);return b})}
+/* ======================= ACTIVITY 1: SHAPE SORTER ======================= */
+function sortRound(lvl,api){let bins,items=[],extra='';
+ if(lvl===0){api.ask('Polygon or not?','Drag each shape into the right bin. A polygon is CLOSED and has only STRAIGHT sides.');
+  bins=[{label:'Polygon',sub:'closed, straight sides'},{label:'Not a polygon'}];
+  const np=shuffle(Object.keys(NONPOLY)).slice(0,rnd(2,3));
+  const ps=shuffle(['equilateral','rightTri','square','rectangle','rhombus','trapezoid','pentagon','hexagon','octagon','parallelogram','house','obtuseTri','scalene']).slice(0,6-np.length);
+  items=[...ps.map(k=>({shape:poly(k),bin:0})),...np.map(k=>({shape:nonpoly(k),bin:1}))];
+ }else if(lvl===1){const ns=shuffle([3,4,5,6,8,pick([7,10])]).slice(0,3).sort((a,b)=>a-b);
+  bins=ns.map(n=>({label:cap(PNAME[n]),sub:`${n} sides`}));api.ask('Count the sides!','Drag each shape to its name. Count the straight sides carefully.');
+  ns.forEach((n,bi)=>{const used=[];for(let k=0;k<2;k++){let key=byN(n);if(used.includes(key))key=byN(n);used.push(key);items.push({shape:poly(key),bin:bi})}});
+ }else{const mode=pick(['right','par','eq']);
+  const M={right:{yes:'Has a right angle',no:'No right angles',test:I=>I.right>0,pool:['square','rectangle','rightTri','rightTrapezoid','house','oneRight','rhombus','parallelogram','equilateral','isosceles','obtuseTri','trapezoid','pentagon','hexagon','octagon','scalene'],ask:'Right angle or not?',hint:'A right angle is a perfect square corner, like the corner of a book.'},
+   par:{yes:'Has parallel sides',no:'No parallel sides',test:I=>I.par>0,pool:['square','rectangle','rhombus','parallelogram','trapezoid','rightTrapezoid','hexagon','octagon','equilateral','rightTri','scalene','obtuseTri','quad','pentagon'],ask:'Parallel sides or not?',hint:'Parallel sides are like train tracks: they go the same way and never meet.'},
+   eq:{yes:'All sides equal',no:'Not all sides equal',test:I=>I.allEqual,pool:['square','rhombus','equilateral','pentagon','hexagon','octagon','rectangle','parallelogram','trapezoid','rightTri','scalene','isosceles','house','rightTrapezoid'],ask:'Are ALL the sides the same length?',hint:'Compare every side. Are they ALL the same length?'}}[mode];
+  bins=[{label:M.yes},{label:M.no}];api.ask(M.ask,'Drag each shape into the bin that matches the clue.');extra=M.hint;
+  const yes=[],no=[];let guard=0;while((yes.length<3||no.length<3)&&guard++<300){const sh=poly(pick(M.pool));const t=M.test(sh.I);if(t&&yes.length<3&&!yes.some(y=>y.key===sh.key))yes.push(sh);else if(!t&&no.length<3&&!no.some(y=>y.key===sh.key))no.push(sh)}
+  items=[...yes.map(x=>({shape:x,bin:0,mode})),...no.map(x=>({shape:x,bin:1,mode}))];}
+ items=shuffle(items);
+ const wrap=h('div',{class:'sorter'}),tray=h('div',{class:'tray',id:'tray'}),row=h('div',{class:'bins',style:`grid-template-columns:repeat(${bins.length},1fr)`});
+ let sel=null,left=items.length;
+ const binEls=bins.map((b,i)=>{const e=h('div',{class:'bin','data-bin':i},h('div',{class:'bin-label'},b.label,b.sub?h('small',{},b.sub):null),h('div',{class:'bin-items'}));e.addEventListener('click',()=>{if(sel&&!run.solved)place(sel,i)});row.append(e);return e});
+ items.forEach((it,idx)=>{const t=h('div',{class:'tile','data-idx':idx,style:`animation-delay:${idx*60}ms`});const sv=s('svg',{viewBox:'-52 -52 104 104'});sv.append(drawShape(it.shape,pick(FILLS),3));t.append(sv);it.el=t;it.tries=0;tray.append(t);
+  dragify(t,{disabled:()=>it.done||run.solved,
+   onTap:()=>{if(sel)sel.el.classList.remove('sel');if(sel===it){sel=null;return}sel=it;t.classList.add('sel');sfx.tap();api.hint('Now tap the bin where it belongs!')},
+   onMove:(x,y)=>binEls.forEach(b=>b.classList.toggle('over',inRect(b,x,y))),
+   onDrop:(x,y)=>{binEls.forEach(b=>b.classList.remove('over'));const bi=binEls.findIndex(b=>inRect(b,x,y));return bi<0?false:place(it,bi)}})});
+ function reason(it){const sh=it.shape;if(lvl===0)return sh.polygon?'It is closed and every side is straight, so it IS a polygon.':NONPOLY[sh.key].why;if(lvl===1)return`It has ${sh.I.n} sides, so it is a ${PNAME[sh.I.n]}.`;const I=sh.I;if(it.mode==='right')return I.right?`It has ${I.right} right angle${I.right>1?'s':''} (square corner${I.right>1?'s':''}).`:'None of its corners is a perfect square corner.';if(it.mode==='par')return I.par?'Some of its sides go the same way, like train tracks.':'Its sides would all meet if you made them longer — no parallel sides.';return I.allEqual?'Every side is the same length.':'Some sides are longer than others.'}
+ function place(it,bi){if(sel){sel.el.classList.remove('sel');sel=null}
+  if(it.bin===bi){it.done=true;it.el.style.transition='none';it.el.style.transform='';binEls[bi].querySelector('.bin-items').append(it.el);left--;const c=centerOf(binEls[bi]);if(left===0)api.good('You sorted every shape!',c.x,c.y);else{api.bit(c.x,c.y);say('Yes! '+reason(it),'happy')}return true}
+  it.tries++;const b=binEls[bi];b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');
+  api.bad(it.tries===1?(lvl===0?'Hmm, not that bin. Is it closed? Are ALL of its sides straight?':lvl===1?'Not quite! Touch each side with your finger and count out loud.':'Not quite! '+extra):'Look again: '+reason(it)+` It goes in "${bins[it.bin].label}".`);return false}
+ wrap.append(tray,row);api.stage.append(wrap);run.dbg={items:items.map(i=>({bin:i.bin})),bins:bins.length}}
+
+/* ======================= ACTIVITY 2: TAP DETECTIVE ======================= */
+function tapRound(lvl,api){const svg=s('svg',{viewBox:'-66 -66 132 132',id:'tapSvg'});api.stage.append(svg);let sh;
+ if(lvl===0){sh=poly(byN(pick([3,4,4,5,6,6,8])));api.ask('Tap every vertex!','A vertex is a corner where two sides meet. Find them all!')}
+ else if(lvl===1){sh=poly(byN(pick([3,4,5,6,7,8,10])));api.ask('Tap every side!','Tap each straight side to count it. Then pick the shape\'s name.')}
+ else{sh=poly(pick(['square','rectangle','rightTri','rightTrapezoid','house','oneRight','rightTri','rectangle']));api.ask('Tap the right angles!','Find every square corner. Drag the yellow corner checker onto a corner to test it.')}
+ const P=sh.pts,I=sh.I,n=P.length;svg.append(drawShape(sh,pick(FILLS),1.6));const marks=s('g');svg.append(marks);const found=new Set();const goal=lvl===2?I.right:n;
+ const counter=h('div',{class:'counter',id:'counter'});const updC=()=>{counter.textContent=lvl===0?`Vertices found: ${found.size}`:lvl===1?`Sides counted: ${found.size}`:`Right angles found: ${found.size}`};updC();api.controls.append(counter);
+ 
+ const outward=(m,k=9)=>{const d=norm(m);return[m[0]+d[0]*k,m[1]+d[1]*k]};
+ function nameStep(){api.ask(`${n} sides! What is this shape called?`,'Tap its name.');const names=shuffle([n,...shuffle([3,4,5,6,7,8,10].filter(x=>x!==n)).slice(0,3)]);
+  choiceButtons(names.map(x=>({v:x,label:cap(PNAME[x])})),(v,b)=>{if(v===n){b.classList.add('good');const c=centerOf(b);api.good(`${n} sides makes a ${PNAME[n]}.`,c.x,c.y)}else{b.classList.add('bad');b.disabled=true;api.bad(`You counted ${n} sides. Which name means ${n}? Remember: ${PREFIX}.`)}})}
+ function handle(p){if(run.solved)return;
+  if(lvl!==1){let bi=-1,bd=1e9;P.forEach((v,i)=>{const d=dist(v,p);if(d<bd){bd=d;bi=i}});if(bd>14){api.hint(lvl===0?'That spot is not a corner. Vertices are the pointy corners where two sides meet!':'Tap right on a corner.');return}
+   if(found.has(bi)){api.hint('You already found that one!');return}const c=clientOf(svg,P[bi]);
+   if(lvl===0){found.add(bi);const o=outward(P[bi],0);marks.append(s('g',{class:'popin'},s('circle',{cx:o[0],cy:o[1],r:6.5,fill:'#F59E0B',stroke:'#fff','stroke-width':1.5}),s('text',{x:o[0],y:o[1]+2.6,'text-anchor':'middle','font-size':7,'font-weight':700,fill:'#fff'},found.size)));updC();
+    if(found.size===n)api.good(`You found all ${n} vertices! A ${PNAME[n]} has ${n} vertices.`,c.x,c.y);else{api.bit(c.x,c.y);say(`${found.size} found! Keep looking…`,'happy')}}
+   else{const a=I.angles[bi],t=angType(a);if(t==='right'){found.add(bi);marks.append(rightMark(P,bi,8,'#16A34A',1.8));marks.append(s('circle',{cx:P[bi][0],cy:P[bi][1],r:3,fill:'#16A34A',class:'popin'}));updC();if(found.size===goal)api.good(`This shape has ${goal} right angle${goal>1?'s':''}!`,c.x,c.y);else{api.bit(c.x,c.y);say('Yes, that is a square corner! Any more?','happy')}}
+    else{marks.append(s('circle',{cx:P[bi][0],cy:P[bi][1],r:5,fill:'none',stroke:'#E11D48','stroke-width':1.5,class:'popin'}));api.bad(t==='acute'?`That corner is about ${Math.round(a)}°. It is POINTIER than a square corner, so it is acute, not right.`:`That corner is about ${Math.round(a)}°. It opens WIDER than a square corner, so it is obtuse, not right.`)}}}
+  else{if(found.size===n)return;let bi=-1,bd=1e9;P.forEach((v,i)=>{const d=segDist(p,v,P[(i+1)%n]);if(d<bd){bd=d;bi=i}});if(bd>8){api.hint('Tap right on one of the edge lines.');return}if(found.has(bi)){api.hint('You already counted that side!');return}
+   found.add(bi);const a=P[bi],b=P[(bi+1)%n];const m=[(a[0]+b[0])/2,(a[1]+b[1])/2],o=outward(m,9);marks.append(s('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:pick(['#E11D48','#2563EB','#16A34A','#D97706','#7C3AED']),'stroke-width':3.2,'stroke-linecap':'round',class:'popin'}),s('g',{class:'popin'},s('circle',{cx:o[0],cy:o[1],r:5.5,fill:'#1E1B4B'}),s('text',{x:o[0],y:o[1]+2.3,'text-anchor':'middle','font-size':6.5,'font-weight':700,fill:'#fff'},found.size)));updC();const c=clientOf(svg,m);
+   if(found.size===n){sfx.bit();confetti(c.x,c.y,14,.6);say(`You counted ${n} sides!`,'happy');nameStep()}else{api.bit(c.x,c.y);say(`${found.size}…`,'happy')}}}
+ svg.addEventListener('pointerdown',e=>{if(e.target.closest('.checker'))return;e.preventDefault();handle(svgPt(svg,e))});
+ if(lvl===2)addChecker(svg,()=>P.map((v,i)=>({v,a:P[(i+1)%n],b:P[(i-1+n)%n]})),[-62,38],18,handle);
+ run.dbg={pts:P.map(p=>clientOf(svg,p)),right:I.angles.map(a=>angType(a)==='right'),n,svgId:'tapSvg'}}
+
+/* ======================= ACTIVITY 3: ANGLE LAB ======================= */
+const ANGICON={acute:'<svg viewBox="0 0 40 30"><path d="M4 26H36M4 26L30 8" stroke="#1E1B4B" stroke-width="3.5" stroke-linecap="round" fill="none"/></svg>',right:'<svg viewBox="0 0 40 30"><path d="M8 26H36M8 26V3" stroke="#1E1B4B" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M8 19h7v7" stroke="#1E1B4B" stroke-width="1.5" fill="none"/></svg>',obtuse:'<svg viewBox="0 0 40 30"><path d="M18 26H38M18 26L2 6" stroke="#1E1B4B" stroke-width="3.5" stroke-linecap="round" fill="none"/></svg>'};
+function angExplain(t,d){return t==='right'?'It matches a square corner exactly. A right angle is 90°.':t==='acute'?`It is SMALLER than a square corner${d?` (about ${d}°)`:''}, so it is acute.`:`It opens WIDER than a square corner${d?` (about ${d}°)`:''} but is not a straight line, so it is obtuse.`}
+function angleButtons(ans,deg){choiceButtons(['acute','right','obtuse'].map(t=>({v:t,label:cap(t),icon:ANGICON[t]})),(v,b)=>{if(v===ans){b.classList.add('good');const c=centerOf(b);api.good(angExplain(ans,deg),c.x,c.y)}else{b.classList.add('bad');b.disabled=true;api.bad(api.tries===0?'Not quite! Is it smaller than, the same as, or bigger than a square corner? Try the corner checker.':`Look again with the checker. Acute = smaller than a square corner, obtuse = bigger.`)}})}
+function angleRound(lvl,api){
+ if(lvl===2)return angleHunt(api);
+ const svg=s('svg',{viewBox:'0 0 200 150',id:'angSvg'});api.stage.append(svg);
+ const V=[100,120],L=86;const base=lvl===0?pick([0,0,10,20,-8]):0;let th;
+ const dp=(deg,len)=>[V[0]+Math.cos(deg*D2R)*len,V[1]-Math.sin(deg*D2R)*len];
+ const arc=s('path',{fill:'#FBCFE8',stroke:'#DB2777','stroke-width':1}),fixed=s('line',{stroke:'#1E1B4B','stroke-width':3,'stroke-linecap':'round'}),mov=s('line',{stroke:'#1E1B4B','stroke-width':3,'stroke-linecap':'round'});
+ const handle=s('g',{id:'angHandle'},s('circle',{r:16,fill:'transparent'}),s('circle',{r:8,fill:'#E11D48',stroke:'#fff','stroke-width':2.5,class:lvl===1?'pulse':''}));
+ svg.append(arc,fixed,mov,s('circle',{cx:V[0],cy:V[1],r:3.5,fill:'#1E1B4B'}));if(lvl===1)svg.append(handle);
+ let F,M;function draw(){F=dp(base,L+8);M=dp(base+th,L);fixed.setAttribute('x1',V[0]);fixed.setAttribute('y1',V[1]);fixed.setAttribute('x2',F[0]);fixed.setAttribute('y2',F[1]);mov.setAttribute('x1',V[0]);mov.setAttribute('y1',V[1]);mov.setAttribute('x2',M[0]);mov.setAttribute('y2',M[1]);const p0=dp(base,24),p1=dp(base+th,24);arc.setAttribute('d',`M${V} L${p0} A24 24 0 0 0 ${p1} Z`);handle.setAttribute('transform',`translate(${M[0]} ${M[1]})`)}
+ addChecker(svg,()=>[{v:V,a:F,b:M}],[10,10],22);
+ if(lvl===0){th=pick([rnd(22,70),90,rnd(110,158)]);draw();api.ask('What kind of angle is this?','Compare it to a square corner. Drag the yellow corner checker onto the angle\'s corner!');angleButtons(angType(th),th);run.dbg={answer:angType(th)}}
+ else{const target=pick(['acute','right','obtuse']);th=target==='acute'?rnd(115,150):target==='obtuse'?rnd(30,60):pick([rnd(30,60),rnd(115,150)]);draw();
+  api.ask(`Make ${target==='right'?'a right':target==='acute'?'an acute':'an obtuse'} angle!`,{acute:'Drag the red dot so the angle is SMALLER than a square corner.',right:'Drag the red dot to make a perfect square corner.',obtuse:'Drag the red dot so the angle is WIDER than a square corner (but not flat).'}[target]);
+  let dragging=null;const setFrom=p=>{let a=Math.atan2(V[1]-p[1],p[0]-V[0])/D2R-base;if(a<0)a=a<-90?172:8;a=Math.max(8,Math.min(172,a));if(Math.abs(a-90)<4)a=90;th=Math.round(a);draw()};
+  svg.addEventListener('pointerdown',e=>{if(run.solved||e.target.closest('.checker'))return;e.preventDefault();dragging=e.pointerId;try{svg.setPointerCapture(e.pointerId)}catch(_){}setFrom(svgPt(svg,e))});
+  svg.addEventListener('pointermove',e=>{if(dragging!==e.pointerId||run.solved)return;e.preventDefault();setFrom(svgPt(svg,e))});
+  const end=()=>{dragging=null};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  const chk=h('button',{class:'btn primary wide',id:'checkBtn'},'Check my angle ✓');chk.onclick=()=>{if(run.solved)return;const t=angType(th);const c=centerOf(chk);if(t===target)api.good(`Your angle is about ${th}°. `+angExplain(t,null),c.x,c.y);else api.bad(`Your angle is about ${th}°, so it is ${t}. `+(target==='acute'?'Close it up so it is smaller than a square corner!':target==='obtuse'?'Open it wider than a square corner!':t==='acute'?'Open it a little wider — line it up with the checker!':'Close it a little — line it up with the checker!'))};api.controls.append(chk);
+  run.dbg={target,V:clientOf(svg,V),pt:deg=>clientOf(svg,dp(base+deg,L))}}}
+function angleHunt(api){const svg=s('svg',{viewBox:'-66 -66 132 132',id:'huntSvg'});api.stage.append(svg);const want=pick(['acute','right','obtuse']);let sh,vi=0;
+ for(let k=0;k<200;k++){sh=poly(pick(['equilateral','rightTri','isosceles','obtuseTri','square','rectangle','rhombus','parallelogram','trapezoid','rightTrapezoid','house','pentagon','hexagon','oneRight','scalene','octagon']));const c=sh.I.angles.map((a,i)=>i).filter(i=>{const a=sh.I.angles[i];return angType(a)===want&&(Math.abs(a-90)<1.5||Math.abs(a-90)>=12)});if(c.length){vi=pick(c);break}}
+ const P=sh.pts,n=P.length,deg=Math.round(sh.I.angles[vi]);svg.append(drawShape(sh,pick(FILLS),1.6),wedge(P,vi,13),s('circle',{cx:P[vi][0],cy:P[vi][1],r:4.5,fill:'none',stroke:'#E11D48','stroke-width':1.6,class:'pulse'}));
+ addChecker(svg,()=>P.map((v,i)=>({v,a:P[(i+1)%n],b:P[(i-1+n)%n]})),[-62,38],18);
+ api.ask('What kind of angle is the pink corner?','Drag the yellow corner checker onto the pink corner to compare.');angleButtons(want,deg);run.dbg={answer:want}}
+
+/* ======================= ACTIVITY 4: QUAD QUEST ======================= */
+const QFACT={square:'A square has 4 equal sides AND 4 right angles. That means it is also a rectangle and a rhombus!',rectangle:'A rectangle has 4 right angles and 2 pairs of parallel sides.',rhombus:'A rhombus has 4 equal sides, and its opposite sides are parallel.',parallelogram:'A parallelogram has 2 pairs of parallel sides.',trapezoid:'A trapezoid has exactly 1 pair of parallel sides.',quadrilateral:'It has 4 sides, but no parallel sides, so it is just a quadrilateral.'};
+function whyNot(o,I){return{square:'A square needs 4 equal sides AND 4 right angles.',rectangle:'A rectangle needs 4 right angles (square corners).',rhombus:'A rhombus needs 4 equal sides. Check the tick marks!',parallelogram:'A parallelogram needs 2 pairs of parallel sides.',trapezoid:`A trapezoid has exactly 1 pair of parallel sides. This shape has ${I.par}.`,quadrilateral:'',polygon:''}[o]}
+const TF=[
+ {t:'Every square is also a rectangle.',a:true,s:'square',why:'A square has 4 right angles, so it IS a rectangle — a special one with all sides equal!'},
+ {t:'Every rectangle is a square.',a:false,s:'rectangle',why:'A rectangle needs 4 right angles, but its sides do not all have to be equal.'},
+ {t:'A circle is a polygon.',a:false,s:'circle',why:'A circle has no straight sides, so it is not a polygon.'},
+ {t:'A rhombus has 4 sides that are all the same length.',a:true,s:'rhombus',why:'Yes! A rhombus always has 4 equal sides.'},
+ {t:'Every square is also a rhombus.',a:true,s:'square',why:'A square has 4 equal sides, so it is a rhombus too!'},
+ {t:'A triangle can have 2 right angles.',a:false,s:'rightTri',why:'A triangle can have only ONE right angle. With two square corners, the sides could never meet!'},
+ {t:'A trapezoid has exactly 1 pair of parallel sides.',a:true,s:'trapezoid',why:'Yes! That is what makes it a trapezoid.'},
+ {t:'A hexagon has 6 sides and 6 vertices.',a:true,s:'hexagon',why:'Hexa means 6: 6 sides and 6 vertices.'},
+ {t:'An octagon has 6 sides.',a:false,s:'octagon',why:'Octo means 8, like an octopus! An octagon has 8 sides, like a stop sign.'},
+ {t:'A pentagon has 5 vertices.',a:true,s:'pentagon',why:'Penta means 5: 5 sides and 5 vertices.'},
+ {t:'A shape with a curved side can be a polygon.',a:false,s:'curvy',why:'Polygons have ONLY straight sides.'},
+ {t:'An open shape is a polygon.',a:false,s:'open',why:'Polygons must be closed, with no gaps.'},
+ {t:'A rectangle has 4 right angles.',a:true,s:'rectangle',why:'Yes, 4 square corners!'},
+ {t:'Every parallelogram has right angles.',a:false,s:'parallelogram',why:'Only some do (rectangles and squares). This parallelogram has none!'},
+ {t:'A decagon has 10 sides.',a:true,s:'decagon',why:'Deca means 10, like a decade is 10 years.'},
+ {t:'An acute angle is bigger than a right angle.',a:false,s:'equilateral',why:'Acute angles are SMALLER than a right angle. Obtuse angles are bigger.'},
+ {t:'A quadrilateral has 4 sides and 4 angles.',a:true,s:'quad',why:'Quad means 4: 4 sides, 4 angles, 4 vertices.'}
+];
+function quadRound(lvl,api){const svg=s('svg',{viewBox:'-62 -62 124 124',id:'quadSvg'});api.stage.append(svg);
+ const clues=(sh)=>{sh.I.angles.forEach((a,i)=>{if(angType(a)==='right')svg.append(rightMark(sh.pts,i,7,'#1E1B4B',1))});svg.append(ticks(sh.pts,1.1))};
+ if(lvl===0){const sh=poly(pick(['square','rectangle','rhombus','parallelogram','trapezoid','rightTrapezoid']),pick([0,0,0,90,15,-15,45]));const type=quadType(sh.I);svg.append(drawShape(sh,pick(FILLS),1.5));clues(sh);
+  api.ask('What is the BEST name for this shape?','Clues: little squares mean right angles. Tick marks mean equal sides.');
+  choiceButtons(['square','rectangle','rhombus','parallelogram','trapezoid'].map(o=>({v:o,label:cap(o)})),(v,b)=>{if(v===type){b.classList.add('good');const c=centerOf(b);api.good(QFACT[type],c.x,c.y)}else if(QNAMES[type].includes(v)){b.classList.add('sel');sfx.tap();api.hint(`True, it IS a ${v}! But there is an even more exact name. Look at the clues again.`)}else{b.classList.add('bad');b.disabled=true;api.bad('Not this one. '+whyNot(v,sh.I))}});run.dbg={answer:type}}
+ else if(lvl===1){const sh=poly(pick(['square','rectangle','rhombus','parallelogram','trapezoid','rightTrapezoid','quad','square','rectangle','rhombus']),pick([0,0,90,15,-15,30]));const type=quadType(sh.I);svg.append(drawShape(sh,pick(FILLS),1.5));clues(sh);
+  api.ask('Tap ALL the names that fit!','A shape can have more than one name. Then press Check.');const chosen=new Set();const names=['polygon','quadrilateral','parallelogram','rectangle','rhombus','square','trapezoid'];
+  const btns=names.map(nm=>{const b=h('button',{class:'btn','data-v':nm},cap(nm));b.onclick=()=>{if(run.solved)return;sfx.tap();b.classList.remove('bad');if(chosen.has(nm)){chosen.delete(nm);b.classList.remove('sel')}else{chosen.add(nm);b.classList.add('sel')}};api.controls.append(b);return b});
+  const chk=h('button',{class:'btn primary wide',id:'checkBtn'},'Check ✓');api.controls.append(chk);
+  chk.onclick=()=>{if(run.solved)return;const right=QNAMES[type];const missing=right.filter(x=>!chosen.has(x)),extra=[...chosen].filter(x=>!right.includes(x));
+   if(!missing.length&&!extra.length){btns.forEach(b=>{if(chosen.has(b.dataset.v))b.className='btn good'});const c=centerOf(chk);api.good(`This ${type} is a ${right.join(', ')}!`,c.x,c.y)}
+   else if(extra.length){btns.forEach(b=>{if(extra.includes(b.dataset.v))b.classList.add('bad')});api.bad(`${cap(extra[0])} does not fit. ${whyNot(extra[0],sh.I)}`)}
+   else api.bad(`Almost! ${missing.length} more name${missing.length>1?'s fit':' fits'}. `+(missing.includes('polygon')?'Hint: every quadrilateral is a polygon too!':missing.includes('quadrilateral')?'Hint: count the sides!':'Hint: a square is also a rectangle AND a rhombus, and both of those are parallelograms!'))};run.dbg={answer:QNAMES[type]}}
+ else{const mode=pick(['right','par','tf','tf']);
+  if(mode==='tf'){const q=pick(TF);const sh=NONPOLY[q.s]?nonpoly(q.s):poly(q.s,0);const g=drawShape(sh,pick(FILLS),1.5);g.setAttribute('transform','scale(.8) translate(0 8)');svg.append(g);
+   api.ask(q.t,'True or false? Tap your answer.');choiceButtons([{v:true,label:'True'},{v:false,label:'False'}],(v,b)=>{if(v===q.a){b.classList.add('good');const c=centerOf(b);api.good(q.why,c.x,c.y)}else{b.classList.add('bad');b.disabled=true;api.bad('Hmm, think again! '+(q.a?'This one is actually true.':'This one is actually false.')+' '+q.why)}});run.dbg={answer:q.a}}
+  else if(mode==='right'){const sh=poly(pick(['square','rectangle','rightTri','rightTrapezoid','house','oneRight','rhombus','parallelogram','trapezoid','equilateral','obtuseTri']));const P=sh.pts,n=P.length;svg.append(drawShape(sh,pick(FILLS),1.5));
+   addChecker(svg,()=>P.map((v,i)=>({v,a:P[(i+1)%n],b:P[(i-1+n)%n]})),[-58,36],17);api.ask('How many right angles does this shape have?','Test each corner with the yellow corner checker.');
+   choiceButtons([0,1,2,3,4].map(v=>({v,label:String(v)})),(v,b)=>{if(v===sh.I.right){b.classList.add('good');sh.I.angles.forEach((a,i)=>{if(angType(a)==='right')svg.append(rightMark(P,i,7,'#16A34A',1.6))});const c=centerOf(b);api.good(`It has ${v} right angle${v===1?'':'s'}.`,c.x,c.y)}else{b.classList.add('bad');b.disabled=true;api.bad('Not quite. Slide the checker onto EVERY corner and count the perfect matches.')}});run.dbg={answer:sh.I.right}}
+  else{const sh=poly(pick(['square','rectangle','rhombus','parallelogram','trapezoid','rightTrapezoid','quad','rightTri','equilateral','scalene']));svg.append(drawShape(sh,pick(FILLS),1.5));api.ask('How many PAIRS of parallel sides?','Parallel sides go the same way, like train tracks, and never meet.');
+   choiceButtons([0,1,2].map(v=>({v,label:String(v)})),(v,b)=>{if(v===sh.I.par){b.classList.add('good');const cols=['#2563EB','#E11D48'];sh.I.parPairs.forEach((pr,k)=>pr.forEach(i=>{const a=sh.pts[i],c2=sh.pts[(i+1)%sh.pts.length];svg.append(s('line',{x1:a[0],y1:a[1],x2:c2[0],y2:c2[1],stroke:cols[k%2],'stroke-width':3.2,'stroke-linecap':'round',class:'popin'}))}));const c=centerOf(b);api.good(v?`It has ${v} pair${v>1?'s':''} of parallel sides (shown in color).`:'No sides are parallel.',c.x,c.y)}else{b.classList.add('bad');b.disabled=true;api.bad('Look at the opposite sides. Do they point the same way, like train tracks? Count the PAIRS.')}});run.dbg={answer:sh.I.par}}}}
+/* ======================= grid helpers ======================= */
+function skyline(cols,maxH){const cells=new Set();for(let x=0;x<cols;x++){const hh=rnd(1,maxH);for(let y=0;y<hh;y++)cells.add(`${x},${maxH-1-y}`)}return{cells,w:cols,h:maxH}}
+function rectCells(w,hh){const cells=new Set();for(let x=0;x<w;x++)for(let y=0;y<hh;y++)cells.add(`${x},${y}`);return{cells,w,h:hh,rect:true}}
+function boundary(cells){const E=[];cells.forEach(k=>{const[x,y]=k.split(',').map(Number);if(!cells.has(`${x},${y-1}`))E.push({x1:x,y1:y,x2:x+1,y2:y,s:'t'});if(!cells.has(`${x},${y+1}`))E.push({x1:x,y1:y+1,x2:x+1,y2:y+1,s:'b'});if(!cells.has(`${x-1},${y}`))E.push({x1:x,y1:y,x2:x,y2:y+1,s:'l'});if(!cells.has(`${x+1},${y}`))E.push({x1:x+1,y1:y,x2:x+1,y2:y+1,s:'r'})});return E}
+function connected(cells){if(!cells.size)return false;const all=[...cells];const seen=new Set([all[0]]);const q=[all[0]];while(q.length){const[x,y]=q.pop().split(',').map(Number);[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{const k=`${x+dx},${y+dy}`;if(cells.has(k)&&!seen.has(k)){seen.add(k);q.push(k)}})}return seen.size===cells.size}
+function gridLines(g,cols,rows,C=10,color='#E5E7EB',w=.5){for(let x=0;x<=cols;x++)g.append(s('line',{x1:x*C,y1:0,x2:x*C,y2:rows*C,stroke:color,'stroke-width':w}));for(let y=0;y<=rows;y++)g.append(s('line',{x1:0,y1:y*C,x2:cols*C,y2:y*C,stroke:color,'stroke-width':w}))}
+const UNITS=[['cm','centimeters'],['in.','inches'],['ft','feet'],['m','meters'],['units','units']];
+
+/* ======================= ACTIVITY 5: PERIMETER PATH ======================= */
+function labeledShape(){const kind=pick(['rect','rect','square','tri','trap','rtrap','pent','hex','L']);let pts,lens;
+ if(kind==='rect'){const l=rnd(4,12),w=rnd(2,l-1);pts=[[0,0],[l,0],[l,w],[0,w]]}
+ else if(kind==='square'){const a=rnd(2,9);pts=[[0,0],[a,0],[a,a],[0,a]]}
+ else if(kind==='tri'){for(let k=0;k<500;k++){const a=rnd(3,12),b=rnd(3,12),c=rnd(4,12);if(a+b<=c+1||a+c<=b+1||b+c<=a+1)continue;const x=(b*b-a*a+c*c)/(2*c),y=Math.sqrt(Math.max(0,b*b-x*x));if(y<.35*c)continue;pts=[[0,0],[c,0],[x,-y]];lens=[c,a,b];break}if(!pts){pts=[[0,0],[8,0],[4,-3]];lens=[8,5,5]}}
+ else if(kind==='trap'){const m=pick([1,1,2]),b=rnd(3,7);pts=[[0,0],[(b+6)*m,0],[(b+3)*m,-4*m],[3*m,-4*m]]}
+ else if(kind==='rtrap'){const m=pick([1,2]),b=rnd(3,8);pts=[[0,0],[(b+3)*m,0],[b*m,-4*m],[0,-4*m]]}
+ else if(kind==='pent'||kind==='hex'){const n=kind==='pent'?5:6,sd=rnd(2,9);const R=sd/(2*Math.sin(Math.PI/n));pts=regular(n).map(([x,y])=>[x*R,y*R]);lens=Array(n).fill(sd)}
+ else{const W=rnd(6,11),H=rnd(5,9),a=rnd(2,W-3),b=rnd(2,H-3);pts=[[0,0],[a,0],[a,b],[W,b],[W,H],[0,H]]}
+ if(!lens)lens=pts.map((p,i)=>Math.round(dist(p,pts[(i+1)%pts.length])));return{kind,pts,lens}}
+function drawLabeled(svg,sh,unit,missing=-1){const P=fit(sh.pts,38),n=P.length;const c=P.reduce((a,p)=>[a[0]+p[0]/n,a[1]+p[1]/n],[0,0]);
+ svg.append(s('polygon',{points:P.map(p=>p.join(',')).join(' '),fill:pick(['#FEF3C7','#E0F2FE','#FCE7F3','#DCFCE7']),stroke:'#B45309','stroke-width':1.6,'stroke-linejoin':'round'}));
+ P.forEach((a,i)=>{const b=P[(i+1)%n],m=[(a[0]+b[0])/2,(a[1]+b[1])/2];let d=sub(b,a);let nn=norm([d[1],-d[0]]);if((m[0]-c[0])*nn[0]+(m[1]-c[1])*nn[1]<0)nn=[-nn[0],-nn[1]];const o=[m[0]+nn[0]*8,m[1]+nn[1]*7];
+  if(i===missing){svg.append(s('circle',{cx:o[0],cy:o[1],r:6.5,fill:'#E11D48',class:'pulse'}),s('text',{x:o[0],y:o[1]+2.8,'text-anchor':'middle','font-size':8,'font-weight':700,fill:'#fff'},'?'))}
+  else svg.append(s('text',{x:o[0],y:o[1]+2,'text-anchor':'middle','font-size':5.6,'font-weight':700,fill:'#1E1B4B',stroke:'#fff','stroke-width':2.2,'paint-order':'stroke'},`${sh.lens[i]} ${unit}`))})}
+function periRound(lvl,api){
+ if(lvl===0){const g=Math.random()<.4?rectCells(rnd(2,5),rnd(2,4)):skyline(rnd(3,5),rnd(2,4));const C=10,cols=g.w+2,rows=g.h+2;const svg=s('svg',{viewBox:`0 0 ${cols*C} ${rows*C}`,id:'periSvg'});api.stage.append(svg);
+  const lay=s('g');gridLines(lay,cols,rows,C);svg.append(lay);const sh=s('g',{transform:`translate(${C} ${C})`});svg.append(sh);
+  g.cells.forEach(k=>{const[x,y]=k.split(',').map(Number);sh.append(s('rect',{x:x*C,y:y*C,width:C,height:C,fill:'#FDE68A',stroke:'#FBBF24','stroke-width':.4}))});
+  const E=boundary(g.cells),P=E.length;let count=0;const labels=s('g');
+  E.forEach(e=>{const ln=s('line',{x1:e.x1*C,y1:e.y1*C,x2:e.x2*C,y2:e.y2*C,stroke:'#B45309','stroke-width':1.1,'stroke-linecap':'round'});const hit=s('line',{x1:e.x1*C,y1:e.y1*C,x2:e.x2*C,y2:e.y2*C,stroke:'transparent','stroke-width':6,class:'hit'});sh.append(ln,hit);
+   hit.addEventListener('pointerdown',ev=>{ev.preventDefault();if(run.solved)return;if(e.done){api.hint('You already counted that one!');return}e.done=true;count++;ln.setAttribute('stroke','#E11D48');ln.setAttribute('stroke-width',2.2);const mx=(e.x1+e.x2)/2*C+(e.s==='l'?-3.5:e.s==='r'?3.5:0),my=(e.y1+e.y2)/2*C+(e.s==='t'?-2.5:e.s==='b'?4.8:1.1);labels.append(s('text',{x:mx,y:my,'text-anchor':'middle','font-size':3.4,'font-weight':700,fill:'#BE123C',class:'popin'},count));sfx.tap();if(count===P)say('You went all the way around! How many units is that?','happy')})});
+  sh.append(labels);
+  api.ask('What is the perimeter?','Each little side is 1 unit. Tap the sides around the OUTSIDE to count them, then type your answer.');
+  keypad(v=>{if(v===P){const c=centerOf($('#kpDisplay'));api.good(`The perimeter is ${P} units — the distance all the way around.`,c.x,c.y);return true}api.bad(api.tries===0?'Not quite! Tap each outside edge to count. Don\'t count the lines inside the shape.':`You have tapped ${count} so far. Keep tapping all the way around!`);return false},'units');run.dbg={answer:P};return}
+ const sh=labeledShape(),u=pick(UNITS),P=sh.lens.reduce((a,b)=>a+b,0);const svg=s('svg',{viewBox:'-60 -60 120 120',id:'periSvg'});api.stage.append(svg);
+ if(lvl===1){drawLabeled(svg,sh,u[0]);api.ask('What is the perimeter?',`Add up the lengths of ALL ${sh.lens.length} sides.`);
+  keypad(v=>{if(v===P){const c=centerOf($('#kpDisplay'));api.good(`${sh.lens.join(' + ')} = ${P} ${u[1]}.`,c.x,c.y);return true}api.bad(api.tries===0?'Not quite! Add up ALL the sides. Tip: add two at a time.':`Add all ${sh.lens.length} sides: ${sh.lens.join(' + ')} = ?`);return false},u[0]);run.dbg={answer:P}}
+ else{const mi=rnd(0,sh.lens.length-1),ans=sh.lens[mi],K=P-ans;drawLabeled(svg,sh,u[0],mi);api.ask(`The perimeter is ${P} ${u[1]}. How long is the missing side?`,'Add the sides you know, then figure out what is missing.');
+  keypad(v=>{if(v===ans){const c=centerOf($('#kpDisplay'));api.good(`The known sides add to ${K}, and ${K} + ${ans} = ${P}.`,c.x,c.y);return true}api.bad(api.tries===0?`Not quite! Add the sides you can see, then ask: what number gets me to ${P}?`:`The sides you can see add to ${K}. ${K} + ? = ${P}`);return false},u[0]);run.dbg={answer:ans}}}
+
+/* ======================= ACTIVITY 6: AREA BUILDER ======================= */
+function areaRound(lvl,api){const C=10;
+ if(lvl===0){const g=Math.random()<.5?rectCells(rnd(2,6),rnd(2,4)):skyline(rnd(3,5),rnd(2,4));const cols=g.w+2,rows=g.h+2,A=g.cells.size;const svg=s('svg',{viewBox:`0 0 ${cols*C} ${rows*C}`,id:'areaSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C);svg.append(lay);
+  const sh=s('g',{transform:`translate(${C} ${C})`});svg.append(sh);let count=0;
+  g.cells.forEach(k=>{const[x,y]=k.split(',').map(Number);const r=s('rect',{x:x*C,y:y*C,width:C,height:C,fill:'#86EFAC',stroke:'#166534','stroke-width':.6,class:'hit'});sh.append(r);let done=false;r.addEventListener('pointerdown',e=>{e.preventDefault();if(run.solved||done)return;done=true;count++;r.setAttribute('fill','#22C55E');sh.append(s('text',{x:x*C+C/2,y:y*C+C/2+1.8,'text-anchor':'middle','font-size':5,'font-weight':700,fill:'#fff','pointer-events':'none',class:'popin'},count));sfx.tap()})});
+  api.ask('What is the area?','Each square is 1 square unit. Tap the squares to count them, then type your answer.');
+  keypad(v=>{if(v===A){const c=centerOf($('#kpDisplay'));api.good(g.rect?`${g.h} rows of ${g.w} = ${A} square units.`:`The area is ${A} square units.`,c.x,c.y);return true}api.bad(api.tries===0?(g.rect?'Not quite! Tip: count the squares in one row, then count the rows.':'Not quite! Tap each square once to count it.'):`You have counted ${count} squares so far. Count every square inside the shape!`);return false},'sq. units');run.dbg={answer:A};return}
+ if(lvl===1){const cols=8,rows=6,mode=pick(['cover','build']);let target=null,N=0;
+  if(mode==='cover'){let g;do{g=skyline(rnd(3,5),rnd(2,4))}while(g.cells.size<4);target=new Set();g.cells.forEach(k=>{const[x,y]=k.split(',').map(Number);target.add(`${x+1},${y+1}`)})}else N=rnd(5,12);
+  const svg=s('svg',{viewBox:`-3 -3 ${cols*C+30} ${rows*C+6}`,id:'areaSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C,'#D1D5DB',.5);svg.append(lay);
+  if(target){const tg=s('g');target.forEach(k=>{const[x,y]=k.split(',').map(Number);tg.append(s('rect',{x:x*C,y:y*C,width:C,height:C,fill:'#F0FDF4'}))});boundary(target).forEach(e=>tg.append(s('line',{x1:e.x1*C,y1:e.y1*C,x2:e.x2*C,y2:e.y2*C,stroke:'#16A34A','stroke-width':1.2,'stroke-dasharray':'2 1.4','stroke-linecap':'round'})));svg.append(tg)}
+  const tileG=s('g');svg.append(tileG);const TX=cols*C+8,TY=6;
+  svg.append(s('rect',{x:TX-3,y:TY-3,width:20,height:30,rx:3,fill:'#F5F3FF',stroke:'#C4B5FD','stroke-width':.6}),s('rect',{x:TX+.5,y:TY,width:13,height:13,rx:1.5,fill:'#4ADE80',stroke:'#166534','stroke-width':.8,id:'trayTile',class:'pulse'}),s('text',{x:TX+7,y:TY+21,'text-anchor':'middle','font-size':4.2,fill:'#4B5563','font-weight':600},'drag me'));
+  const filled=new Map();let locked=false;const counter=h('div',{class:'counter',id:'counter'});api.controls.append(counter);
+  const updC=()=>{counter.textContent=mode==='cover'?`Tiles placed: ${filled.size}`:`Tiles placed: ${filled.size} (goal: ${N})`};updC();
+  const cellAt=p=>{const x=Math.floor(p[0]/C),y=Math.floor(p[1]/C);return x>=0&&x<cols&&y>=0&&y<rows?`${x},${y}`:null};
+  let warned=false;function apply(k,m){if(!k||locked)return;if(m==='fill'){if(filled.has(k))return;if(target&&!target.has(k)){if(!warned){api.hint('Oops! That square is outside the dashed outline. Keep the tiles inside!');warned=true}return}const[x,y]=k.split(',').map(Number);const r=s('rect',{x:x*C+.4,y:y*C+.4,width:C-.8,height:C-.8,rx:1,fill:'#4ADE80',stroke:'#166534','stroke-width':.6,class:'popin'});tileG.append(r);filled.set(k,r);sfx.tap()}else{if(!filled.has(k))return;filled.get(k).remove();filled.delete(k);sfx.tap()}updC();changed()}
+  function changed(){if(mode==='cover'&&target&&[...target].every(k=>filled.has(k))&&!locked){locked=true;const c=centerOf(svg);confetti(c.x,c.y,25,.8);sfx.bit();say('You covered the whole shape! Now: how many square units is the area?','happy');api.ask('How many square units is the area?','Count the tiles you used.');keypad(v=>{if(v===target.size){const cc=centerOf($('#kpDisplay'));api.good(`The area is ${target.size} square units.`,cc.x,cc.y);return true}api.bad('Count the green tiles one by one. Each tile is 1 square unit.');return false},'sq. units')}}
+  let mode2=null,ghost=null,pid=null;
+  svg.addEventListener('pointerdown',e=>{if(run.solved||locked)return;e.preventDefault();const p=svgPt(svg,e);pid=e.pointerId;try{svg.setPointerCapture(pid)}catch(_){}
+   if(p[0]>=TX-3&&p[0]<=TX+17&&p[1]>=TY-3&&p[1]<=TY+27){mode2='ghost';ghost=s('rect',{x:p[0]-C/2,y:p[1]-C/2,width:C,height:C,rx:1,fill:'#4ADE80','fill-opacity':.8,stroke:'#166534','stroke-width':.6,'pointer-events':'none'});svg.append(ghost);sfx.tap();return}
+   const k=cellAt(p);if(!k)return;mode2=filled.has(k)?'erase':'fill';warned=false;apply(k,mode2)});
+  svg.addEventListener('pointermove',e=>{if(!mode2||e.pointerId!==pid)return;e.preventDefault();const p=svgPt(svg,e);if(mode2==='ghost'){ghost.setAttribute('x',p[0]-C/2);ghost.setAttribute('y',p[1]-C/2)}else apply(cellAt(p),mode2)});
+  const end=e=>{if(!mode2)return;if(mode2==='ghost'){const p=svgPt(svg,e);ghost.remove();ghost=null;warned=false;const k=cellAt(p);if(k)apply(k,'fill')}mode2=null};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',()=>{if(ghost)ghost.remove();ghost=null;mode2=null});
+  if(mode==='cover')api.ask('Cover the shape with square tiles!','Drag tiles from the tray (or tap and slide on the squares) to fill the dashed outline. Tap a tile to remove it.');
+  else{api.ask(`Build a shape with an area of ${N} square units!`,'Drag tiles onto the grid, or tap and slide. Every tile must touch another tile along a side.');
+   const clr=h('button',{class:'btn'},'Clear');clr.onclick=()=>{if(run.solved)return;filled.forEach(r=>r.remove());filled.clear();updC()};
+   const chk=h('button',{class:'btn primary',id:'checkBtn',style:'flex:1'},'Check ✓');chk.onclick=()=>{if(run.solved)return;const cs=new Set(filled.keys());const c=centerOf(chk);if(cs.size!==N)api.bad(`You have ${cs.size} tile${cs.size===1?'':'s'}. You need exactly ${N}. ${cs.size<N?'Add':'Take away'} ${Math.abs(N-cs.size)}.`);else if(!connected(cs))api.bad('Make sure every tile touches another tile along a side, so it is one shape.');else api.good(`Your shape has an area of ${N} square units, and its perimeter is ${boundary(cs).length} units.`,c.x,c.y)};api.controls.append(clr,chk)}
+  run.dbg={mode,N,target:target?[...target]:null,cell:(k)=>{const[x,y]=k.split(',').map(Number);return clientOf(svg,[x*C+C/2,y*C+C/2])},tray:()=>clientOf(svg,[TX+7,TY+6])};return}
+ // level 3: rectangle stretch
+ const cols=10,rows=7;let tP,tA,mode=pick(['P','A']);
+ const fits=(w,hh)=>w>=1&&w<=cols&&hh>=1&&hh<=rows;
+ if(mode==='P'){const P0=pick([10,12,14,16,18]);const opts=[];for(let w=1;w<P0/2;w++){const hh=P0/2-w;if(fits(w,hh))opts.push([w,hh])}const t=pick(opts);tP=P0;tA=t[0]*t[1]}
+ else{const A0=pick([8,12,16,18,20,24]);const opts=[];for(let w=1;w<=cols;w++)if(A0%w===0&&fits(w,A0/w))opts.push([w,A0/w]);const t=pick(opts);tA=A0;tP=2*(t[0]+t[1])}
+ const all=[];for(let w=1;w<=cols;w++)for(let hh=1;hh<=rows;hh++){if(mode==='P'&&2*(w+hh)===tP&&w<=hh)all.push([w,hh]);if(mode==='A'&&w*hh===tA&&w<=hh)all.push([w,hh])}
+ let w=2,hh=2;do{w=rnd(1,6);hh=rnd(1,5)}while(2*(w+hh)===tP&&w*hh===tA);
+ const svg=s('svg',{viewBox:`-8 -6 ${cols*C+14} ${rows*C+16}`,id:'rectSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C,'#D1D5DB',.5);svg.append(lay);const rg=s('g');svg.append(rg);
+ const hd=s('g',{id:'rectHandle'},s('circle',{r:8,fill:'transparent'}),s('circle',{r:4,fill:'#E11D48',stroke:'#fff','stroke-width':1.4,class:'pulse'}));svg.append(hd);
+ const ro=h('div',{class:'readout',id:'readout'});api.controls.append(ro);
+ function draw(){rg.innerHTML='';const y0=rows*C-hh*C;for(let x=0;x<w;x++)for(let y=0;y<hh;y++)rg.append(s('rect',{x:x*C+.4,y:y0+y*C+.4,width:C-.8,height:C-.8,rx:1,fill:'#86EFAC'}));rg.append(s('rect',{x:0,y:y0,width:w*C,height:hh*C,fill:'none',stroke:'#D97706','stroke-width':1.4}));rg.append(s('text',{x:w*C/2,y:rows*C+6.5,'text-anchor':'middle','font-size':5,'font-weight':700,fill:'#1E1B4B'},w),s('text',{x:-4,y:y0+hh*C/2+1.8,'text-anchor':'middle','font-size':5,'font-weight':700,fill:'#1E1B4B'},hh));hd.setAttribute('transform',`translate(${w*C} ${y0})`);
+  ro.innerHTML='';ro.append(h('div',{class:'big'},`${w} × ${hh}`),h('div',{},'Perimeter',h('b',{},`${2*(w+hh)} units`)),h('div',{},'Area',h('b',{},`${w*hh} sq. units`)))}
+ draw();let dr=null;const setFrom=p=>{const nw=Math.max(1,Math.min(cols,Math.round(p[0]/C))),nh=Math.max(1,Math.min(rows,Math.round((rows*C-p[1])/C)));if(nw!==w||nh!==hh){w=nw;hh=nh;sfx.tap();draw()}};
+ svg.addEventListener('pointerdown',e=>{if(run.solved)return;e.preventDefault();dr=e.pointerId;try{svg.setPointerCapture(dr)}catch(_){}setFrom(svgPt(svg,e))});svg.addEventListener('pointermove',e=>{if(dr!==e.pointerId||run.solved)return;e.preventDefault();setFrom(svgPt(svg,e))});svg.addEventListener('pointerup',()=>dr=null);svg.addEventListener('pointercancel',()=>dr=null);
+ api.ask(`Make a rectangle with a perimeter of ${tP} units and an area of ${tA} square units!`,'Drag the red corner dot to stretch or shrink the rectangle.');
+ const chk=h('button',{class:'btn primary wide',id:'checkBtn'},'Check ✓');api.controls.append(chk);
+ chk.onclick=()=>{if(run.solved)return;const P=2*(w+hh),A=w*hh;const c=centerOf(chk);if(P===tP&&A===tA){const list=all.map(([a,b])=>mode==='P'?`${a}×${b} has area ${a*b}`:`${a}×${b} has perimeter ${2*(a+b)}`).join(', ');api.good(mode==='P'?`Rectangles with perimeter ${tP} can have DIFFERENT areas: ${list}.`:`Rectangles with area ${tA} can have DIFFERENT perimeters: ${list}.`,c.x,c.y)}
+  else api.bad(`Yours has perimeter ${P} and area ${A}. `+(P!==tP&&A!==tA?`You need perimeter ${tP} AND area ${tA}.`:P!==tP?`The area is right! Now get the perimeter to ${tP}.`:`The perimeter is right! Now change the shape so the area is ${tA}.`)+(api.tries>=1?` Tip: width + height must be ${tP/2}.`:''))};
+ run.dbg={tP,tA,pt:(a,b)=>clientOf(svg,[a*C,rows*C-b*C])}}
+
+/* ======================= activities ======================= */
+const ACTS=[
+ {id:'sort',title:'Shape Sorter',color:'#7C3AED',sol:'SOL 3.MG.4',desc:'Drag shapes into the right bins!',levels:['Polygon or Not?','Count the Sides','Sort by Clues'],tips:['Polygons are closed shapes with straight sides. Circles are not polygons!','Count the sides: tri = 3, quad = 4, penta = 5, hexa = 6, octa = 8.','Look for square corners, train-track sides, and equal sides!'],round:sortRound},
+ {id:'tap',title:'Tap Detective',color:'#0D9488',sol:'SOL 3.MG.4',desc:'Find vertices, sides and right angles.',levels:['Find the Vertices','Count the Sides','Spot Right Angles'],tips:['A vertex is a corner. Tap every one you see!','Tap each side once, then name the shape.','A right angle is a square corner. Use the yellow checker!'],round:tapRound},
+ {id:'angle',title:'Angle Lab',color:'#E11D48',sol:'AAP stretch',desc:'Bend angles and use the corner checker.',levels:['Name That Angle','Make an Angle','Angle Hunt'],tips:['Acute is smaller than a square corner. Obtuse is bigger. Right is exactly a square corner.','Drag the red dot to bend the angle!','Which kind of angle is hiding in the pink corner?'],round:angleRound},
+ {id:'quad',title:'Quad Quest',color:'#2563EB',sol:'SOL 3.MG.4',desc:'Squares, rhombuses, trapezoids & more.',levels:['Best Name','All the Names','True or False?'],tips:['Little squares show right angles. Tick marks show equal sides.','A square is a rectangle AND a rhombus too!','Think like a shape scientist!'],round:quadRound},
+ {id:'peri',title:'Perimeter Path',color:'#D97706',sol:'SOL 3.MG.2',desc:'Walk all the way around the shape.',levels:['Count the Units','Add the Sides','Missing Side'],tips:['Perimeter is the distance all the way AROUND a shape.','Add up every side length.','Use the total to find the missing side!'],round:periRound},
+ {id:'area',title:'Area Builder',color:'#16A34A',sol:'SOL 3.MG.2',desc:'Fill shapes with square tiles.',levels:['Count the Squares','Build with Tiles','Rectangle Stretch'],tips:['Area is how many squares cover the inside of a shape.','Drag green tiles onto the grid!','Same perimeter can have different areas. Stretch and see!'],round:areaRound}
+];
+
+/* ======================= screens ======================= */
+function showHome(){closeModal();keyHandler=null;run=null;main.innerHTML='';main.scrollTop=0;
+ const ts=totalStars(),nb=Object.keys(st.badges).length;
+ const hero=h('section',{class:'hero'},frag('<svg class="hero-deco" viewBox="0 0 220 180"><polygon points="40,20 80,90 0,90" fill="#fff"/><rect x="110" y="10" width="60" height="60" fill="#fff" transform="rotate(15 140 40)"/><circle cx="170" cy="130" r="35" fill="#fff"/><polygon points="70,110 110,110 125,145 90,170 55,145" fill="#fff"/></svg>'),mascotEl('bob'),h('div',{},h('h1',{},'Hi there!'),h('p',{},"I'm Polly the Polygon. Let's play with shapes!"),h('div',{class:'statrow'},h('span',{class:'pill'},`★ ${ts} / 54 stars`),h('span',{class:'pill'},`${nb} / ${BADGES.length} badges`),h('span',{class:'pill'},`Best streak: ${st.bestStreak}`))));
+ const cards=h('div',{class:'cards'},ACTS.map(a=>{const done=[0,1,2].reduce((t,l)=>t+levelStars(a.id,l),0);const next=[0,1,2].find(l=>!levelStars(a.id,l));
+  return h('button',{class:'card',style:`--c:${a.color}`,'data-act':a.id,onclick:()=>{sfx.tap();showActivity(a.id,next==null?0:next)}},frag(ACTICON[a.id].replace('<svg','<svg class="icon"')),h('h3',{},a.title),h('p',{},a.desc),h('div',{class:'lvrow'},a.levels.map((n,i)=>h('span',{class:'lvchip'},`${i+1} `,h('span',{class:'st'},starStr(levelStars(a.id,i))))),h('span',{class:'tag'},a.sol)),h('div',{class:'bar'},h('i',{style:`width:${Math.round(done/9*100)}%`})))}));
+ main.append(h('div',{class:'home'},hero,cards))}
+function showProgress(){closeModal();keyHandler=null;run=null;main.innerHTML='';main.scrollTop=0;
+ const topics=h('div',{class:'box'},h('h2',{},'Topic progress'),ACTS.map(a=>{const d=[0,1,2].reduce((t,l)=>t+levelStars(a.id,l),0);return h('div',{class:'topic',style:`--c:${a.color}`},frag(ACTICON[a.id]),h('div',{class:'nm'},a.title),h('div',{class:'lv'},a.levels.map((n,i)=>`${n} ${starStr(levelStars(a.id,i))}`).join('  ·  ')),h('div',{class:'bar',style:'grid-column:2/-1'},h('i',{style:`width:${Math.round(d/9*100)}%`})))}));
+ const badges=h('div',{class:'box'},h('h2',{},`Badges (${Object.keys(st.badges).length} of ${BADGES.length})`),h('div',{class:'badges'},BADGES.map(b=>h('div',{class:'badge'+(st.badges[b.id]?'':' locked')},badgeIcon(b,64),h('b',{},b.name),b.desc))));
+ const grown=h('div',{class:'box'},h('h2',{},'For grown-ups'),h('div',{class:'grown'},h('p',{style:'margin:0;flex:1;min-width:240px;color:#4B5563;font-size:16px'},'Progress is saved on this device only. Topics follow Virginia 2023 Grade 3 Math SOLs: 3.MG.2 (area & perimeter) and 3.MG.4 (polygons). Angle Lab is an AAP stretch (angle types are formally taught in Grade 4). Trapezoid = exactly one pair of parallel sides.'),h('button',{class:'btn',id:'resetBtn',onclick:resetFlow},'Reset all progress')));
+ main.append(h('div',{class:'prog'},h('div',{class:'box',style:'display:flex;align-items:center;gap:12px'},mascotEl('bob'),h('div',{style:'flex:1'},h('h2',{style:'margin:0'},"My Trophy Room"),h('div',{class:'statrow',style:'margin-top:8px'},h('div',{class:'stat'},h('b',{},st.points),'points'),h('div',{class:'stat'},h('b',{},`${totalStars()}/54`),'stars'),h('div',{class:'stat'},h('b',{},st.bestStreak),'best streak'),h('div',{class:'stat'},h('b',{},st.correct),'right answers'))),h('button',{class:'btn go',onclick:()=>showHome()},'Play ▶')),topics,badges,grown))}
+function resetFlow(){const a=rnd(6,9),b=rnd(6,9);const inp=h('input',{type:'number',inputmode:'numeric',id:'resetAns','aria-label':'answer'});const msg=h('p',{style:'color:#E11D48;min-height:1.3em;margin:0'});
+ modal(h('div',{class:'modal'},h('h2',{},'Grown-ups only'),h('p',{},`This erases all points, stars and badges. To confirm, type the answer to ${a} × ${b}:`),inp,msg,h('div',{class:'mbtns'},h('button',{class:'btn',onclick:closeModal},'Cancel'),h('button',{class:'btn primary',id:'resetGo',onclick:()=>{if(+inp.value===a*b){const m=st.muted;st=fresh();st.muted=m;save();updateHud();closeModal();showHome()}else msg.textContent='That is not quite right. Nothing was reset.'}},'Reset'))));setTimeout(()=>inp.focus(),50)}
+
+window.__polly={get st(){return st},get run(){return run},showActivity,showHome,showProgress};
+showHome();
+})();
+</script>
+</body>
+</html>
