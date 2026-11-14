@@ -206,11 +206,11 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 
 /* ---- buddies ---- */
 .buddy .fz{filter:url(#fur)}
-.buddy .eyes{transform-box:fill-box;transform-origin:50% 50%;animation:blink 5s infinite}
-.buddy:nth-of-type(2n) .eyes{animation-delay:1.7s}
+.buddy .eyes{animation:blinkO 5s infinite}.buddy .shut{opacity:0;animation:blinkC 5s infinite}
+.buddy:nth-of-type(2n) .eyes,.buddy:nth-of-type(2n) .shut{animation-delay:1.7s}
 .mascot.sad .polly{animation:droop 1.1s}
 .buddy.locked .polly{filter:brightness(0);opacity:.32}
-.buddy.locked .eyes{animation:none}
+.buddy.locked .eyes,.buddy.locked .shut{animation:none}
 .hero .buddy.locked .polly{filter:brightness(0) invert(1);opacity:.5}
 .bubble{flex-direction:column;align-items:flex-start;justify-content:center}
 .bubble .who{font-size:14px;color:var(--purple);letter-spacing:.3px}
@@ -243,12 +243,15 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 body.set-puff{--bg:#FFF1F6;background:#FFF1F6 radial-gradient(#FBCFE8 3px,transparent 3.6px) 0 0/28px 28px}
 body.set-puff main{background:transparent}
 body.set-puff .hero{background:linear-gradient(120deg,#DB2777,#9333EA)}
-@keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+@keyframes blinkO{0%,90%,99%,100%{opacity:1}92%,97%{opacity:0}}
+@keyframes blinkC{0%,90%,99%,100%{opacity:0}92%,97%{opacity:1}}
 @keyframes droop{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(5px) rotate(-5deg) scale(1.03,.95)}}
 @keyframes glow{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 @keyframes reveal{0%{filter:brightness(0);transform:scale(.3) rotate(-25deg);opacity:.4}45%{filter:brightness(0);transform:scale(1.1) rotate(8deg);opacity:1}60%{filter:brightness(2.2)}100%{filter:brightness(1);transform:scale(1) rotate(0)}}
 @media (max-width:560px){.crewmate .mascot{width:44px;height:48px}.crewmate{font-size:12px}.crew{gap:3px}.cardguide .mascot{width:42px;height:46px}.crewgrid{grid-template-columns:repeat(2,1fr)}.crewcard .mascot{width:66px;height:72px}.hero{flex-wrap:wrap}}
-@media (prefers-reduced-motion:reduce){.buddy .eyes,.mascot.bob .polly,.reveal .sparkle-ring{animation:none}}
+.mascot.happy .eyes{animation:hO 1.5s}.mascot.happy .shut{animation:hC 1.5s}
+@keyframes hO{0%,85%{opacity:0}100%{opacity:1}}@keyframes hC{0%,85%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.buddy .eyes,.buddy .shut,.mascot.bob .polly,.reveal .sparkle-ring{animation:none}}
 </style>
 </head>
 <body>
@@ -387,52 +390,49 @@ const blob=(cx,cy,rx,ry,fill,stroke,n,a)=>`<path d="${fuzz(cx,cy,rx,ry,n,a)}" fi
 const starPts=(cx,cy,R,r)=>Array.from({length:10},(_,i)=>{const t=-Math.PI/2+i*Math.PI/5,q=i%2?r:R;return `${R2(cx+q*Math.cos(t))},${R2(cy+q*Math.sin(t))}`}).join(' ');
 const heartD=(x,y,w)=>`M${x} ${y+w*.35}C${x-w*.05} ${y} ${x-w*.5} ${y} ${x-w*.5} ${y+w*.3}C${x-w*.5} ${y+w*.6} ${x} ${y+w*.8} ${x} ${y+w}C${x} ${y+w*.8} ${x+w*.5} ${y+w*.6} ${x+w*.5} ${y+w*.3}C${x+w*.5} ${y} ${x+w*.05} ${y} ${x} ${y+w*.35}Z`;
 function curls(col,dk){return [[44,47,8],[56,44,9],[68,45,8.5],[78,50,6]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${col}" stroke="${dk}" stroke-width="1.6"/><path d="M${x-r*.55} ${y+r*.1}a${r*.55} ${r*.55} 0 1 1 ${r*.6} ${r*.45}a${r*.28} ${r*.28} 0 1 1 ${-r*.1} ${-r*.5}" fill="none" stroke="${dk}" stroke-width="1.4" stroke-linecap="round"/>`).join('')}
-function gEyes(iris,dk,o={}){const E=(x)=>`<ellipse cx="${x}" cy="66" rx="7.6" ry="8.6" fill="#fff" stroke="#3B2A2A" stroke-width="1.4"/><ellipse cx="${x}" cy="67" rx="6" ry="7" fill="${iris}"/><ellipse cx="${x}" cy="68" rx="3.4" ry="4.2" fill="${dk}"/>`+(o.heart?`<path d="${heartD(x,64,7)}" fill="#E11D48"/>`:'')+`<circle cx="${x-2.4}" cy="63.4" r="2.3" fill="#fff"/><circle cx="${x+2.2}" cy="70" r="1.2" fill="#fff"/><path d="M${x+3} ${y0(o)}l.8 1.6 1.6.8-1.6.8-.8 1.6-.8-1.6-1.6-.8 1.6-.8z" fill="#fff"/>`;return `<g class="eyes">${E(50)}${E(70)}</g>`}
+function cuteEyes(xl,xr,y,rx,ry,col,o={}){const E=x=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${col}"/><ellipse cx="${x}" cy="${y+ry*.45}" rx="${rx*.62}" ry="${ry*.32}" fill="${o.tint||'#7C4A3A'}" opacity=".55"/>`+(o.heart?`<path d="${heartD(x+rx*.35,y+ry*.18,rx*.62)}" fill="#fff" opacity=".9"/>`:`<circle cx="${x+rx*.38}" cy="${y+ry*.42}" r="${rx*.2}" fill="#fff"/>`)+`<circle cx="${x-rx*.32}" cy="${y-ry*.36}" r="${rx*.42}" fill="#fff"/>`;const S=x=>`<path d="M${x-rx*.9} ${y+1}Q${x} ${y-ry*.85} ${x+rx*.9} ${y+1}" fill="none" stroke="${col}" stroke-width="${Math.max(1.8,rx*.32)}" stroke-linecap="round"/>`;return `<g class="eyes">${E(xl)}${E(xr)}</g><g class="shut">${S(xl)}${S(xr)}</g>`}
+function gEyes(iris,dk,o={}){return cuteEyes(47.5,72.5,70,6.6,7.4,'#2B1A14',{tint:iris,heart:o.heart})}
 const y0=o=>59.5;
 const FACE=`<ellipse cx="60" cy="66" rx="25" ry="20" fill="#FDE3D0" stroke="#E7B497" stroke-width="1.6"/>`;
-const BLUSH=`<ellipse cx="41" cy="75" rx="4.5" ry="2.6" fill="#FB7185" opacity=".45"/><ellipse cx="79" cy="75" rx="4.5" ry="2.6" fill="#FB7185" opacity=".45"/>`;
+const BLUSH=`<ellipse cx="40" cy="78" rx="4.8" ry="2.8" fill="#FB7185" opacity=".5"/><ellipse cx="80" cy="78" rx="4.8" ry="2.8" fill="#FB7185" opacity=".5"/>`;
 function kid(c){/* chibi kid in a furry animal hood */
- return `${c.back||''}${blob(60,95,30,21,c.fur,c.dk,22)}${blob(60,60,40,37,c.fur,c.dk,30,.06)}${c.hood||''}${FACE}${c.hairSvg||curls(c.hair,c.hairDk)}${gEyes(c.iris,c.pupil||'#1E1B4B',c)}${c.brows||''}${BLUSH}${c.mouth||'<path d="M57 79q3 2.6 6 0" stroke="#7C2D12" stroke-width="1.8" fill="none" stroke-linecap="round"/>'}${blob(31,95,7,8,c.fur,c.dk,10)}${blob(89,95,7,8,c.fur,c.dk,10)}<ellipse cx="48" cy="114" rx="8" ry="4.5" fill="${c.dk}"/><ellipse cx="72" cy="114" rx="8" ry="4.5" fill="${c.dk}"/>${c.front||''}`}
+ return `${c.back||''}${blob(60,95,30,21,c.fur,c.dk,22)}${blob(60,60,40,37,c.fur,c.dk,30,.06)}${c.hood||''}${FACE}${c.hairSvg||curls(c.hair,c.hairDk)}${gEyes(c.iris,c.pupil||'#1E1B4B',c)}${c.brows||''}${BLUSH}${c.mouth||'<path d="M57.5 80.5q2.5 2.4 5 0" stroke="#7C2D12" stroke-width="1.7" fill="none" stroke-linecap="round"/>'}${blob(31,95,7,8,c.fur,c.dk,10)}${blob(89,95,7,8,c.fur,c.dk,10)}<ellipse cx="48" cy="114" rx="8" ry="4.5" fill="${c.dk}"/><ellipse cx="72" cy="114" rx="8" ry="4.5" fill="${c.dk}"/>${c.front||''}`}
 function puff(c){/* round fuzzy puffball */
- return `${c.back||''}<ellipse cx="46" cy="108" rx="9" ry="6" fill="${c.fur}" stroke="#3B2F35" stroke-width="2.4"/><ellipse cx="74" cy="108" rx="9" ry="6" fill="${c.fur}" stroke="#3B2F35" stroke-width="2.4"/>${blob(60,66,41,39,c.fur,c.dk,34,.045)}<ellipse cx="60" cy="74" rx="27" ry="21" fill="${c.face}"/>${c.mid||''}<g class="eyes"><ellipse cx="48" cy="70" rx="5.8" ry="7" fill="#1A1423"/><ellipse cx="72" cy="70" rx="5.8" ry="7" fill="#1A1423"/><circle cx="46" cy="67" r="2.3" fill="#fff"/><circle cx="70" cy="67" r="2.3" fill="#fff"/><circle cx="50" cy="73" r="1.1" fill="#fff"/><circle cx="74" cy="73" r="1.1" fill="#fff"/></g><ellipse cx="39" cy="80" rx="5.5" ry="3.2" fill="#FB7185" opacity=".55"/><ellipse cx="81" cy="80" rx="5.5" ry="3.2" fill="#FB7185" opacity=".55"/><path d="M54.5 80.5q2.75 3.2 5.5 0q2.75 3.2 5.5 0" stroke="#3B2F35" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>${c.front||''}`}
+ return `${c.back||''}<ellipse cx="46" cy="108" rx="9" ry="6" fill="${c.fur}" stroke="#3B2F35" stroke-width="2.4"/><ellipse cx="74" cy="108" rx="9" ry="6" fill="${c.fur}" stroke="#3B2F35" stroke-width="2.4"/>${blob(60,66,41,39,c.fur,c.dk,34,.045)}<ellipse cx="60" cy="74" rx="27" ry="21" fill="${c.face}"/>${c.mid||''}${cuteEyes(47,73,75,6.8,7.6,"#1F1418",{tint:"#8A5A6A",heart:c.heart})}<ellipse cx="37" cy="84" rx="5.5" ry="3.2" fill="#FB7185" opacity=".55"/><ellipse cx="83" cy="84" rx="5.5" ry="3.2" fill="#FB7185" opacity=".55"/><path d="M55.5 83.5q2.25 2.6 4.5 0q2.25 2.6 4.5 0" stroke="#3B2F35" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>${c.front||''}`}
 const BUDDY={
  /* ---- Set 1: Feeling Friends ---- */
  blaze:{name:'Blaze',feel:'Anger',role:'gets fired up when you are on a streak',k:'kid',fur:'#EF4444',dk:'#991B1B',hair:'#FACC15',hairDk:'#A16207',iris:'#F97316',
   back:`<path d="M92 100q18 2 16-14" stroke="#991B1B" stroke-width="4" fill="none" stroke-linecap="round"/><polygon points="102,86 112,80 110,92" fill="#B91C1C"/>`,
   hood:`<polygon points="28,36 30,14 40,30 46,6 54,26 60,2 66,26 74,6 80,30 90,14 92,36" fill="#FACC15" stroke="#B45309" stroke-width="1.8" stroke-linejoin="round"/><polygon points="38,32 46,16 52,30 60,12 68,30 74,16 82,32" fill="#F97316"/>`,
-  brows:`<path d="M42 55l13 5M78 55l-13 5" stroke="#7F1D1D" stroke-width="3" stroke-linecap="round"/>`,
-  mouth:`<ellipse cx="60" cy="80" rx="5" ry="3.6" fill="#7F1D1D"/><path d="M57 77.4l1.2 2.2 1.2-2.2z" fill="#fff"/><g fill="#fff" opacity=".85"><circle cx="18" cy="58" r="4"/><circle cx="12" cy="52" r="3"/><circle cx="102" cy="58" r="4"/><circle cx="108" cy="52" r="3"/></g>`},
+  mouth:`<circle cx="38" cy="78" r="6" fill="#FB7185" opacity=".55"/><circle cx="82" cy="78" r="6" fill="#FB7185" opacity=".55"/><path d="M56.5 82q1.75-2 3.5 0q1.75-2 3.5 0" stroke="#7C2D12" stroke-width="1.7" fill="none" stroke-linecap="round"/><g fill="#fff" opacity=".9"><circle cx="16" cy="60" r="4"/><circle cx="10" cy="54" r="3"/><circle cx="104" cy="60" r="4"/><circle cx="110" cy="54" r="3"/></g>`},
  drizzle:{name:'Drizzle',feel:'Sadness',role:'gives you a gentle hug when you miss',k:'kid',fur:'#7CB8F2',dk:'#1D4E89',hair:'#2563EB',hairDk:'#1E3A8A',iris:'#2DD4BF',
   back:`<path d="M60 26C60 6 84 0 92 14" stroke="#1D4E89" stroke-width="3.4" fill="none" stroke-linecap="round"/><circle cx="93" cy="18" r="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.6"/><circle cx="93" cy="18" r="9" fill="#FDE68A" opacity=".35"/>`,
-  brows:`<path d="M43 56l9-3M77 56l-9-3" stroke="#1E3A8A" stroke-width="2.4" stroke-linecap="round"/>`,
-  mouth:`<path d="M56 81q4-3 8 0" stroke="#7C2D12" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M42 74q-3 5 0 7q3-2 0-7z" fill="#60A5FA" stroke="#1D4ED8" stroke-width=".8"/>`,
+  mouth:`<path d="M57.5 82q2.5-1.8 5 0" stroke="#7C2D12" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M40 75q-2.6 4.4 0 6.4q2.6-2 0-6.4z" fill="#7DD3FC" stroke="#0284C7" stroke-width=".7"/><circle cx="39.3" cy="78.6" r=".8" fill="#fff"/>`,
   front:`<circle cx="88" cy="102" r="12" fill="#DBEAFE" fill-opacity=".85" stroke="#60A5FA" stroke-width="2"/><path d="M77 104h22a11 11 0 0 1-22 0z" fill="#60A5FA" opacity=".55"/><path d="M84 103q4-4 8 0q-4 4-8 0zM92 103l3-2.5v5z" fill="#F97316"/><rect x="80" y="89" width="16" height="3" rx="1.5" fill="#93C5FD"/>`},
  sunny:{name:'Sunny',feel:'Delight',role:'cheers the loudest when you get it right',k:'kid',fur:'#FDE047',dk:'#A16207',hair:'#92400E',hairDk:'#5B2A0A',iris:'#F59E0B',
   hood:`${blob(30,26,11,11,'#FDE047','#A16207',12)}${blob(90,26,11,11,'#FDE047','#A16207',12)}`,
-  front:`<g><rect x="37" y="58" width="20" height="14" rx="6" fill="#1E1B4B" stroke="#EC4899" stroke-width="3"/><rect x="63" y="58" width="20" height="14" rx="6" fill="#1E1B4B" stroke="#EC4899" stroke-width="3"/><path d="M57 63h6" stroke="#EC4899" stroke-width="3"/><path d="M41 61l6 0" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/><path d="M67 61l6 0" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/></g><ellipse cx="60" cy="100" rx="36" ry="10" fill="none" stroke="#fff" stroke-width="8"/><ellipse cx="60" cy="100" rx="36" ry="10" fill="none" stroke="#F472B6" stroke-width="8" stroke-dasharray="14 14"/><g stroke="#7C3AED" stroke-width=".8"><circle cx="24" cy="100" r="4" fill="#22D3EE"/><circle cx="96" cy="100" r="4" fill="#A3E635"/><circle cx="60" cy="110" r="4" fill="#F97316"/><circle cx="38" cy="108" r="3.5" fill="#FACC15"/><circle cx="82" cy="108" r="3.5" fill="#C084FC"/></g>`,
+  front:`<g transform="translate(0 -18)"><rect x="38" y="56" width="18" height="11" rx="5" fill="#1E1B4B" stroke="#EC4899" stroke-width="2.6"/><rect x="64" y="56" width="18" height="11" rx="5" fill="#1E1B4B" stroke="#EC4899" stroke-width="2.6"/><path d="M56 60h8" stroke="#EC4899" stroke-width="2.6"/><path d="M42 59h5M68 59h5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".7"/></g><ellipse cx="60" cy="100" rx="36" ry="10" fill="none" stroke="#fff" stroke-width="8"/><ellipse cx="60" cy="100" rx="36" ry="10" fill="none" stroke="#F472B6" stroke-width="8" stroke-dasharray="14 14"/><g stroke="#7C3AED" stroke-width=".8"><circle cx="24" cy="100" r="4" fill="#22D3EE"/><circle cx="96" cy="100" r="4" fill="#A3E635"/><circle cx="60" cy="110" r="4" fill="#F97316"/><circle cx="38" cy="108" r="3.5" fill="#FACC15"/><circle cx="82" cy="108" r="3.5" fill="#C084FC"/></g>`,
   mouth:`<path d="M54 78q6 7 12 0z" fill="#9F1239"/><path d="M56 80q4 3 8 0" fill="#FB7185"/>`},
  pip:{name:'Pip',feel:'Shy',role:'helps with the extra-tricky levels',k:'kid',fur:'#8B5E3C',dk:'#4A2E1A',hair:'#FB7185',hairDk:'#BE123C',iris:'#F59E0B',pupil:'#7C2D12',
   back:`<path d="M24 40C4 50 2 84 12 92C20 96 26 80 28 60z" fill="#8B5E3C" stroke="#4A2E1A" stroke-width="2"/><path d="M96 40C116 50 118 84 108 92C100 96 94 80 92 60z" fill="#F3E3D0" stroke="#A08060" stroke-width="2"/>`,
   hood:`<path d="M60 23A40 37 0 0 1 100 60A40 37 0 0 1 60 97z" fill="#F3E3D0" opacity=".95"/>`,
-  front:`<g fill="none" stroke="#6B3A1E" stroke-width="2.4"><circle cx="50" cy="66" r="10.5"/><circle cx="70" cy="66" r="10.5"/><path d="M60.5 65h-1"/></g><g fill="#C2410C" opacity=".55"><circle cx="40" cy="77" r=".9"/><circle cx="43" cy="79" r=".9"/><circle cx="38" cy="80" r=".9"/><circle cx="80" cy="77" r=".9"/><circle cx="77" cy="79" r=".9"/><circle cx="82" cy="80" r=".9"/></g><path d="M86 50q-3 5 0 7q3-2 0-7z" fill="#BAE6FD" stroke="#0284C7" stroke-width=".8"/>`,
-  mouth:`<path d="M56 80q1.5-1.5 3 0t3 0 3 0" stroke="#7C2D12" stroke-width="1.6" fill="none" stroke-linecap="round"/>`},
+  front:`<g fill="none" stroke="#6B3A1E" stroke-width="2.2"><circle cx="47.5" cy="70" r="10"/><circle cx="72.5" cy="70" r="10"/><path d="M57.5 69q2.5-2 5 0"/></g><g fill="#C2410C" opacity=".5"><circle cx="38" cy="82" r=".9"/><circle cx="41" cy="83.5" r=".9"/><circle cx="36" cy="84.5" r=".9"/><circle cx="82" cy="82" r=".9"/><circle cx="79" cy="83.5" r=".9"/><circle cx="84" cy="84.5" r=".9"/></g><path d="M86 50q-3 5 0 7q3-2 0-7z" fill="#BAE6FD" stroke="#0284C7" stroke-width=".8"/>`,
+  mouth:`<path d="M57.5 80.5q2.5 2.4 5 0" stroke="#7C2D12" stroke-width="1.7" fill="none" stroke-linecap="round"/>`},
  scout:{name:'Scout',feel:'Curiosity',role:'shares hints when you are stuck',k:'kid',fur:'#65C32B',dk:'#2F6B12',hair:'#F5B81C',hairDk:'#A16207',iris:'#84CC16',
   back:`<rect x="10" y="80" width="18" height="24" rx="6" fill="#B45309" stroke="#78350F" stroke-width="2"/>`,
   hood:`<circle cx="42" cy="26" r="7" fill="#65C32B" stroke="#2F6B12" stroke-width="2"/><circle cx="78" cy="26" r="7" fill="#65C32B" stroke="#2F6B12" stroke-width="2"/><circle cx="42" cy="25" r="3" fill="#fff"/><circle cx="78" cy="25" r="3" fill="#fff"/><circle cx="42.5" cy="25.5" r="1.6" fill="#1E1B4B"/><circle cx="78.5" cy="25.5" r="1.6" fill="#1E1B4B"/><path d="M27 52Q60 34 93 52" stroke="#E5E7EB" stroke-width="3.5" fill="none"/><path d="M27 52Q60 34 93 52" stroke="#6B7280" stroke-width="3.5" fill="none" stroke-dasharray="1.6 2.4"/><rect x="88" y="49" width="5" height="8" rx="1.5" fill="#D1D5DB" stroke="#4B5563" stroke-width="1"/><g transform="translate(60 14)"><ellipse cx="0" cy="4" rx="9" ry="7.5" fill="#FDE047" stroke="#CA8A04" stroke-width="1.6"/><circle cx="-3" cy="2" r="1.4" fill="#1E1B4B"/><circle cx="3" cy="2" r="1.4" fill="#1E1B4B"/><path d="M-2 5h4l-2 2.6z" fill="#F97316"/><path d="M-1 -3q1-4 3-1" stroke="#CA8A04" stroke-width="1.4" fill="none"/></g>`,
-  brows:`<path d="M43 55q5-3 10 0" stroke="#78350F" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M68 52q5-3 10 1" stroke="#78350F" stroke-width="2" fill="none" stroke-linecap="round"/>`,
   front:`<path d="M30 84q8 6 12 24M90 84q-8 6-12 24" stroke="#92400E" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
-  mouth:`<ellipse cx="60" cy="80" rx="2.6" ry="3" fill="#9F1239"/>`},
+  mouth:`<path d="M57.5 80.5q2.5 2.4 5 0" stroke="#7C2D12" stroke-width="1.7" fill="none" stroke-linecap="round"/>`},
  lovey:{name:'Lovey',feel:'Affection',role:'gives a big hug when you finish a level',k:'kid',fur:'#F9A8D4',dk:'#9D174D',hair:'#EC4899',hairDk:'#9D174D',iris:'#F472B6',pupil:'#831843',heart:1,
   back:`<path d="M24 82C2 70 4 98 16 100C6 104 18 116 30 100z" fill="#fff" stroke="#F472B6" stroke-width="2"/><path d="M96 82C118 70 116 98 104 100C114 104 102 116 90 100z" fill="#fff" stroke="#F472B6" stroke-width="2"/>`,
   hood:`<path d="${heartD(32,12,22)}" fill="#F472B6" stroke="#9D174D" stroke-width="2"/><path d="${heartD(88,12,22)}" fill="#F472B6" stroke="#9D174D" stroke-width="2"/>`,
-  mouth:`<path d="M56 78q4 4.5 8 0" stroke="#9F1239" stroke-width="1.9" fill="#FDA4AF" stroke-linecap="round"/>`},
+  mouth:`<path d="M57 80q3 3.4 6 0" stroke="#9F1239" stroke-width="1.7" fill="#FDA4AF" stroke-linecap="round"/>`},
  brave:{name:'Brave',feel:'Courage',role:'a secret friend who is never scared to try',k:'kid',secret:1,fur:'#27272A',dk:'#09090B',hair:'#E5E7EB',hairDk:'#6B7280',iris:'#FBBF24',pupil:'#78350F',
   back:`<path d="M34 36C26 6 30-8 40 0C46 6 46 22 46 30z" fill="#27272A" stroke="#09090B" stroke-width="2"/><path d="M38 30C34 12 36 4 40 6" stroke="#A78BFA" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M86 36C94 6 90-8 80 0C74 6 74 22 74 30z" fill="#27272A" stroke="#09090B" stroke-width="2"/><path d="M82 30C86 12 84 4 80 6" stroke="#A78BFA" stroke-width="3" fill="none" stroke-linecap="round"/>`,
-  brows:`<path d="M43 55l10 2M77 55l-10 2" stroke="#E5E7EB" stroke-width="2.4" stroke-linecap="round"/>`,
   front:`<polygon points="${starPts(60,100,7,3)}" fill="#FBBF24" stroke="#92400E" stroke-width="1"/>`,
-  mouth:`<path d="M55 79q5 3.4 10-1" stroke="#7C2D12" stroke-width="2" fill="none" stroke-linecap="round"/>`},
+  mouth:`<path d="M57.5 80.5q2.5 2.4 5 0" stroke="#7C2D12" stroke-width="1.7" fill="none" stroke-linecap="round"/>`},
  /* ---- Set 2: Puffball Pals ---- */
- mochi:{name:'Mochi',feel:'Bunny',role:'gives a big hug when you finish a level',k:'puff',fur:'#F9A8D4',dk:'#DB2777',face:'#FFE4EF',
+ mochi:{name:'Mochi',heart:1,feel:'Bunny',role:'gives a big hug when you finish a level',k:'puff',fur:'#F9A8D4',dk:'#DB2777',face:'#FFE4EF',
   back:`<ellipse cx="44" cy="22" rx="9" ry="22" fill="#F9A8D4" stroke="#DB2777" stroke-width="2.2" transform="rotate(-12 44 22)"/><ellipse cx="44" cy="22" rx="4.2" ry="15" fill="#FBCFE8" transform="rotate(-12 44 22)"/><ellipse cx="76" cy="22" rx="9" ry="22" fill="#F9A8D4" stroke="#DB2777" stroke-width="2.2" transform="rotate(12 76 22)"/><ellipse cx="76" cy="22" rx="4.2" ry="15" fill="#FBCFE8" transform="rotate(12 76 22)"/>`},
  nimbus:{name:'Nimbus',feel:'Cloud',role:'comforts you when a try does not work',k:'puff',fur:'#93C5FD',dk:'#2563EB',face:'#E0F2FE',
   front:`<g fill="#fff" stroke="#93A3B8" stroke-width="1.6"><path d="M38 30a9 9 0 0 1 10-11a12 12 0 0 1 22-2a10 10 0 0 1 14 9a8 8 0 0 1-2 15H44a8 8 0 0 1-6-11z"/></g><path d="M50 44l-2 5M62 44l-2 5M74 44l-2 5" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" opacity=".7"/>`},
@@ -834,7 +834,7 @@ function crossRound(lvl,api){const svg=s('svg',{viewBox:'0 0 200 130',id:'crossS
   api.ask('Parallel, perpendicular, or intersecting?','Lines go on forever. Which word fits these two lines BEST?');
   choiceButtons(['parallel','perpendicular','intersecting'].map(t=>({v:t,label:cap(t),icon:CROSSICON[t]})),(v,b)=>{if(v===type){b.classList.add('good');if(type==='perpendicular')svg.append(rightMark([[X[0]+dirOf(a1)[0],X[1]+dirOf(a1)[1]],X,[X[0]+dirOf(a2)[0],X[1]+dirOf(a2)[1]]],1,9,'#16A34A',1.6));const c=centerOf(b);api.good(CFACT[type],c.x,c.y)}
    else if(type==='perpendicular'&&v==='intersecting'){b.classList.add('sel');sfx.tap();api.hint('True, they DO intersect! But there is a more exact word. Look at the corners where they cross.')}
-   else{b.classList.add('bad');b.disabled=true;api.bad(v==='parallel'?'These lines cross! Parallel lines never meet.':v==='perpendicular'?'Check the corners where they cross. Are they perfect square corners?':'Do these lines ever cross? They stay the same distance apart forever.')}});run.dbg={answer:type};return}
+   else{b.classList.add('bad');b.disabled=true;api.bad(v==='parallel'?'These lines cross! Parallel lines never meet.':v==='perpendicular'?(type==='parallel'?'These lines never cross, so they cannot make square corners. Look again!':'Check the corners where they cross. Are they perfect square corners?'):'Do these lines ever cross? They stay the same distance apart forever.')}});run.dbg={answer:type};return}
  if(lvl===1){const a0=rf(-20,20);const P0=[100,42],Q=[100,92];const target=pick(['parallel','perpendicular','intersecting']);let th;
   if(target==='intersecting')th=pick([a0,a0+90]);else do{th=rnd(0,179)}while(rel(th)===target||Math.abs(((th-a0)%180+180)%180-90)<15||Math.abs(((th-a0)%180+180)%180)<15||Math.abs(((th-a0)%180+180)%180)>165);
   function rel(t){const d=((t-a0)%180+180)%180;return d<.5||d>179.5?'parallel':Math.abs(d-90)<.5?'perpendicular':'intersecting'}
