@@ -1,6 +1,6 @@
-# Polly's Polygon Playground
+# Fuzzy Buddies Shape Club
 
-A hands-on 3rd grade geometry game covering shapes, angles, perimeter, and area.
+A hands-on 3rd grade geometry game: shapes, angles, perimeter, area, points, lines, rays, symmetry, slides/flips/turns, and challenge levels.
 
 **Play it:** https://raw.githack.com/Akbar300/pollys-polygon-playground/main/index.html
 
