@@ -72,6 +72,11 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 .prompt h2{margin:0;font-size:25px;line-height:1.15}
 .prompt p{margin:4px 0 0;color:var(--muted);font-size:17px}
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.controls .qopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.controls .qopts .btn{justify-content:flex-start;text-align:left;overflow-wrap:normal;word-break:normal;hyphens:none}
+.controls .qopts.row{display:flex;flex-wrap:wrap;gap:10px}
+.controls .qopts.row .btn{flex:1 1 0;min-width:64px;justify-content:center;text-align:center}
+@media (max-width:560px){.controls .qopts{grid-template-columns:1fr}.controls .qopts.row{display:flex}}
 .btn{padding:10px 18px;border-radius:16px;background:#fff;border:3px solid #C4B5FD;font-weight:600;font-size:21px;min-height:58px;box-shadow:0 4px 0 #C4B5FD;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .08s}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #C4B5FD}
 .btn svg{width:40px;height:30px}
@@ -602,7 +607,8 @@ function keypad(onEnter,unit=''){let val='';const disp=h('div',{class:'kp-displa
  ['1','2','3','4','5','6','7','8','9','del','0','ok'].forEach(k=>box.append(h('button',{class:'key'+(k==='ok'?' ok':k==='del'?' del':''),'data-k':k,onclick:()=>press(k)},k==='ok'?'Check ✓':k==='del'?'Erase':k)));
  keyHandler=e=>{if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('del');else if(e.key==='Enter')press('ok')};
  run.controls.append(box);return box}
-function choiceButtons(opts,onPick){return opts.map(o=>{const b=h('button',{class:'btn','data-v':String(o.v)},o.icon?frag(o.icon):null,o.label);b.onclick=()=>{if(run.solved||b.disabled)return;onPick(o.v,b)};run.controls.append(b);return b})}
+const compactOpt=s=>{const t=String(s==null?'':s).replace(/<[^>]+>/g,' ').replace(/&nbsp;?/gi,' ').replace(/&[a-z]+;/gi,' ').replace(/\s+/g,' ').trim();if(!t)return false;if(/^[€£$]?[\d.,:\-/%]+$/.test(t))return true;const raw=t.replace(/\s+/g,'');if(/^\d+[×x÷+\-]\d+$/.test(raw)&&raw.length<=8)return true;return !/\s/.test(t)&&t.length<=8};
+function choiceButtons(opts,onPick){const wrap=h('div',{class:'qopts'+(opts.every(o=>compactOpt(o.label))?' row':'')});const bs=opts.map(o=>{const b=h('button',{class:'btn','data-v':String(o.v)},o.icon?frag(o.icon):null,o.label);b.onclick=()=>{if(run.solved||b.disabled)return;onPick(o.v,b)};wrap.append(b);return b});run.controls.append(wrap);return bs}
 /* ======================= ACTIVITY 1: SHAPE SORTER ======================= */
 function sortRound(lvl,api){let bins,items=[],extra='';
  if(lvl===0){api.ask('Polygon or not?','Drag each shape into the right bin. A polygon is CLOSED and has only STRAIGHT sides.');
