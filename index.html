@@ -117,7 +117,7 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 .bin.over{background:#EDE9FE;border-style:solid}
 .bin.shake{animation:shake .45s;background:#FFF1F2;border-color:#FB7185}
 /* keypad */
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:1 1 100%}
+.keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;flex:1 1 100%;width:100%;box-sizing:border-box}
 .kp-display{grid-column:1/-1;background:#fff;border-radius:16px;border:3px solid #C4B5FD;font-size:34px;font-weight:700;text-align:center;padding:4px;min-height:58px}
 .kp-display .kp-unit{font-size:20px;color:var(--muted);font-weight:500}
 .key{min-height:56px;font-size:26px;border-radius:14px;background:#fff;font-weight:700;box-shadow:0 4px 0 #DDD6FE}
@@ -176,7 +176,7 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
  .act{grid-template-columns:1fr;grid-template-rows:auto auto;align-content:start}
  .stage{min-height:380px}
  .stage.ar{min-height:0;aspect-ratio:var(--ar);max-height:58vh;width:100%}
- .keypad{grid-template-columns:repeat(6,1fr)}
+ .keypad{grid-template-columns:repeat(3,minmax(0,1fr))}
  .key{min-height:60px}
  .mascot{width:70px;height:70px}
  .brand{font-size:19px}
@@ -191,7 +191,7 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
  .act{padding:0 6px 8px;gap:8px}
  .stage{min-height:330px}
  .stage.ar{min-height:0}
- .keypad{grid-template-columns:repeat(4,1fr)}
+ .keypad{grid-template-columns:repeat(3,minmax(0,1fr))}
  .stat{min-width:0;flex:1 1 40%}
  .prompt{padding:8px 10px}.prompt h2{font-size:20px}.prompt p{font-size:15px}
  .btn{font-size:18px;min-height:52px;padding:8px 12px}.btn svg{width:32px;height:24px}
@@ -289,6 +289,35 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
   .act.playfull .sorter{padding:8px;gap:8px}
 }
 
+
+
+/* ===== numeric keypad: even 3-col, full width on phones, beside stage on desktop ===== */
+.keypad,.qkeypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:none;flex:1 1 100%;box-sizing:border-box}
+.kp-display{grid-column:1/-1;width:100%;box-sizing:border-box}
+.key{min-width:0;width:100%;box-sizing:border-box}
+.act.playfull .controls.has-keypad,.act.playfull .controls:has(.keypad){display:flex;flex-direction:column;grid-template-columns:none;width:100%;max-width:none;max-height:none;overflow:visible}
+.act.playfull .controls.has-keypad .keypad,.act.playfull .controls:has(.keypad) .keypad{width:100%}
+@media (max-width:900px){
+  .keypad,.act .keypad,.qkeypad,.act .keypad:not(.gkeys){grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media (max-width:560px){
+  .keypad,.act .keypad:not(.gkeys),.qkeypad{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px}
+  .qkeypad{max-width:none;width:100%}
+  .key{min-height:58px;font-size:24px}
+  .key.ok,.key.del{font-size:16px;padding:0 4px}
+  .kp-display{font-size:32px;min-height:56px}
+}
+@media (min-width:900px){
+  .act.playfull:has(.keypad),.act.playfull.has-keypad{
+    display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,420px);grid-template-rows:auto minmax(0,1fr);
+    grid-template-areas:"panel panel" "stage keys";align-content:stretch;gap:10px
+  }
+  .act.playfull:has(.keypad) .panel,.act.playfull.has-keypad .panel{grid-area:panel}
+  .act.playfull:has(.keypad) .stage,.act.playfull.has-keypad .stage{grid-area:stage;flex:unset;width:100%;height:auto;min-height:0}
+  .act.playfull:has(.keypad) .controls,.act.playfull.has-keypad .controls{grid-area:keys;display:flex;flex-direction:column;justify-content:center;width:100%;max-width:420px;margin:0 auto}
+  .act.playfull:has(.keypad) .key,.act.playfull.has-keypad .key{min-height:64px;font-size:28px}
+  .act.playfull:has(.keypad) .key.ok,.act.playfull.has-keypad .key.ok,.act.playfull:has(.keypad) .key.del,.act.playfull.has-keypad .key.del{font-size:18px}
+}
 
 /* ---- buddies ---- */
 .buddy .fz{filter:url(#fur)}
@@ -690,6 +719,7 @@ function fitSorter(){if(!run||!run.stage)return;const wrap=run.stage.querySelect
   const ts=sizeTray();sizeBins(ts);
 }
 function layoutPlayControls(){if(!run||!run.controls)return;const c=run.controls;if(!c.closest('.playfull'))return;
+  if(c.querySelector('.keypad')){c.classList.add('has-keypad');c.hidden=false;c.classList.remove('row');const act=c.closest('.act');if(act)act.classList.add('has-keypad');return}
   const btns=[...c.querySelectorAll(':scope > .btn, :scope > button')];
   if(!btns.length){c.hidden=true;c.classList.remove('row');return}
   c.hidden=false;
@@ -719,7 +749,7 @@ function addChecker(svg,targets,home,size=20,onTap=null){const g=s('g',{class:'c
  const up=e=>{if(!drag)return;const d0=drag;drag=null;if(!d0.moved){g.classList.remove('lift');if(onTap&&e&&e.type==='pointerup')onTap(d0.start);return}g.classList.remove('lift');let best=null,bd=17;targets().forEach(t=>{const d=dist(t.v,pos);if(d<bd){bd=d;best=t}});if(best){pos=best.v.slice();const u=norm(sub(best.a,best.v)),w=norm(sub(best.b,best.v));r=Math.atan2(u[1],u[0])/D2R;f=(u[0]*w[1]-u[1]*w[0])>0?1:-1;set();sfx.tap();say('Compare: does the corner match the yellow square corner EXACTLY, or is it smaller or bigger?')}};
  g.addEventListener('pointerup',up);g.addEventListener('pointercancel',up);svg.append(g);return g}
 function keypad(onEnter,unit=''){let val='';const disp=h('div',{class:'kp-display',id:'kpDisplay'});const upd=()=>{disp.innerHTML='';disp.append(h('span',{class:'kp-val'},val||'?'),unit?h('span',{class:'kp-unit'},' '+unit):'')};upd();
- const box=h('div',{class:'keypad',id:'keypad'},disp);
+ const box=h('div',{class:'keypad',id:'keypad'},disp);if(run&&run.controls){run.controls.classList.add('has-keypad');run.controls.closest('.act')&&run.controls.closest('.act').classList.add('has-keypad')}
  const press=k=>{if(!run||run.solved)return;if(k==='del')val=val.slice(0,-1);else if(k==='ok'){if(val==='')return;const ok=onEnter(+val);if(!ok)val=''}else if(val.length<3)val=(val==='0'?'':val)+k;sfx.tap();upd()};
  ['1','2','3','4','5','6','7','8','9','del','0','ok'].forEach(k=>box.append(h('button',{class:'key'+(k==='ok'?' ok':k==='del'?' del':''),'data-k':k,onclick:()=>press(k)},k==='ok'?'Check ✓':k==='del'?'Erase':k)));
  keyHandler=e=>{if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('del');else if(e.key==='Enter')press('ok')};
