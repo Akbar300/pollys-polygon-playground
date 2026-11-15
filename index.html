@@ -222,7 +222,7 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 .act.playfull .actionbar,.act.playfull .panel > .mascot-row{flex:0 1 42%;margin:0;flex-direction:row;align-items:center;gap:8px;max-width:46%;min-width:0}
 .act.playfull .actionbar .mascot-row{margin:0;flex:1 1 auto;min-width:0;align-items:center}
 .act.playfull .actionbar .mascot,.act.playfull .panel .mascot{width:56px;height:56px;flex:none}
-.act.playfull .actionbar .bubble,.act.playfull .panel .bubble{min-height:44px;max-height:4.6em;overflow:auto;font-size:15px;padding:6px 10px;line-height:1.25}
+.act.playfull .actionbar .bubble,.act.playfull .panel .bubble{min-height:0;max-height:none;overflow:visible;height:auto;font-size:16px;padding:8px 12px;line-height:1.35}
 .act.playfull .abtns{flex:none}
 .act.playfull .abtns .helpbtn{min-height:48px;padding:6px 12px;font-size:16px}
 .act.playfull .actionbar{position:static;background:transparent;box-shadow:none;padding:0}
@@ -236,9 +236,16 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 .act.playfull .sorter{height:100%;min-height:0;padding:10px;gap:12px;box-sizing:border-box}
 .act.playfull .tray{flex:1 1 auto;min-height:0;gap:14px;align-content:center;justify-content:center}
 .act.playfull .bins{flex:1 1 auto;min-height:0;height:auto;gap:12px;align-items:stretch}
-.act.playfull .bin{min-height:0;height:100%;padding:8px;gap:6px}
-.act.playfull .bin-items{flex:1;min-height:0;align-content:center;align-items:center;gap:8px}
-.act.playfull .bin-label{font-size:20px}
+.act.playfull .bin{min-height:0;height:100%;padding:8px;gap:6px;display:flex;flex-direction:column;overflow:hidden}
+.act.playfull .bin-label{flex:0 0 auto;position:relative;z-index:2;background:#FAF5FF;padding:2px 4px 6px;font-size:20px}
+.act.playfull .bin-items{flex:1 1 auto;min-height:0;overflow:auto;align-content:safe center;align-items:center;justify-content:center;gap:8px}
+.act.playfull .sorter.bottom.tray-empty{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.act.playfull .sorter.bottom.tray-empty .tray{display:none}
+.act.playfull .sorter.bottom.tray-empty .bins{height:100%;min-height:0}
+.act.playfull .sorter.split2.tray-empty{grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr)}
+.act.playfull .sorter.split2.tray-empty .tray{display:none}
+.act.playfull .sorter.split2.tray-empty .bin:nth-child(1){grid-column:1;grid-row:1}
+.act.playfull .sorter.split2.tray-empty .bin:nth-child(2){grid-column:2;grid-row:1}
 .act.playfull .sorter.split2{display:grid;grid-template-columns:minmax(170px,.82fr) minmax(0,1.7fr) minmax(170px,.82fr);grid-template-rows:minmax(0,1fr);align-items:stretch}
 .act.playfull .sorter.split2 .tray{grid-column:2;grid-row:1;min-width:0;min-height:0;flex:unset}
 .act.playfull .sorter.split2 .bins{display:contents}
@@ -257,10 +264,17 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 }
 @media (max-width:560px){
   .act.playfull .tile{width:auto;height:auto}
-  .act.playfull .prompt h2{font-size:18px}
-  .act.playfull .prompt p{font-size:14px}
-  .act.playfull .actionbar,.act.playfull .panel > .mascot-row{max-width:48%;flex-basis:48%}
-  .act.playfull .actionbar .mascot,.act.playfull .panel .mascot{width:48px;height:48px}
+  .act.playfull .panel,.act.playfull .panel.slim{flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:8px}
+  .act.playfull .prompt{flex:0 0 auto;width:100%;max-width:none;padding:10px 12px}
+  .act.playfull .prompt h2{font-size:20px}
+  .act.playfull .prompt p{font-size:16px;line-height:1.35}
+  .act.playfull .actionbar,.act.playfull .panel > .mascot-row{max-width:none;flex:0 0 auto;flex-basis:auto;width:100%;align-items:flex-start}
+  .act.playfull .actionbar{flex-direction:column;align-items:stretch}
+  .act.playfull .actionbar .mascot-row{width:100%;max-width:none;flex:0 0 auto}
+  .act.playfull .actionbar .bubble,.act.playfull .panel .bubble{max-height:none;overflow:visible;height:auto;flex:1 1 auto;min-width:0;font-size:16px;line-height:1.35;padding:8px 12px}
+  .act.playfull .actionbar .mascot,.act.playfull .panel .mascot{width:56px;height:56px}
+  .act.playfull .abtns{width:100%}
+
   .act.playfull .sorter.split2{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(120px,.9fr) minmax(120px,.9fr)}
   .act.playfull .sorter.split2 .tray{grid-column:1;grid-row:1}
   .act.playfull .sorter.split2 .bin:nth-child(1){grid-column:1;grid-row:2}
@@ -629,7 +643,7 @@ const api={
  good(msg,x,y){if(!run||run.solved)return;run.solved=true;st.correct++;st.streak++;st.bestStreak=Math.max(st.bestStreak,st.streak);let pts=10+(run.roundMistakes===0?5:0);if(st.streak>0&&st.streak%5===0)pts+=10;st.points+=pts;save();sfx.good();confetti(x??innerWidth/2,y??innerHeight/2,70);say(`${pick(CHEERS)} ${msg} (+${pts})`,'happy');updateHud();run.dots.children[run.round].className='dot done';checkBadges();showNext()},
  bad(t){if(!run||run.solved)return;run.mistakes++;run.roundMistakes++;st.streak=0;save();sfx.bad();say(t,'bad');updateHud()}
 };
-function showNext(){const last=run.round===4;const b=h('button',{class:'btn go next',id:'nextBtn',onclick:()=>{if(last)levelDone();else{run.round++;startRound()}}},last?'Finish level ★':'Next ▶');run.controls.append(b);setTimeout(()=>{if(b.isConnected)b.scrollIntoView({block:'nearest',behavior:'smooth'})},50)}
+function showNext(){const last=run.round===4;const b=h('button',{class:'btn go next',id:'nextBtn',onclick:()=>{if(last)levelDone();else{run.round++;startRound()}}},last?'Finish level ★':'Next ▶');run.controls.append(b);scheduleFit();setTimeout(()=>{if(b.isConnected)b.scrollIntoView({block:'nearest',behavior:'smooth'})},50)}
 function showActivity(id,lvl=0){closeModal();const act=ACTS.find(a=>a.id===id);main.innerHTML='';main.scrollTop=0;
  const tabs=h('div',{class:'levels'},act.levels.map((n,i)=>h('button',{class:'lvl'+(i===lvl?' on':''),onclick:()=>showActivity(id,i)},`${i+1}. ${n}`,h('small',{},starStr(levelStars(id,i))))));
  const dots=h('div',{class:'dots',title:'Rounds'},[0,1,2,3,4].map(()=>h('span',{class:'dot'})));
@@ -657,16 +671,22 @@ function fitSorter(){if(!run||!run.stage)return;const wrap=run.stage.querySelect
   let layout=wrap.dataset.laid;
   if(!layout){layout='bottom';if(bins.length===2&&W>=700){const side=tileFit(W*0.52,H-20,nTiles);const bot=tileFit(W-20,H*0.55,nTiles);if(side>=bot*0.92)layout='split2'}wrap.dataset.laid=layout}
   wrap.classList.toggle('split2',layout==='split2');wrap.classList.toggle('bottom',layout==='bottom');wrap.classList.remove('side');
+  const nLeft=tray.querySelectorAll(':scope > .tile').length;
+  wrap.classList.toggle('tray-empty',nLeft===0);
   const sizeTray=()=>{const tiles=[...tray.querySelectorAll(':scope > .tile')];const n=tiles.length;if(!n)return 0;
     let best=tileFit(tray.clientWidth,tray.clientHeight,n);
     best=Math.max(88,Math.min(best||88,260));
     tiles.forEach(t=>{t.style.width=t.style.height=best+'px'});return best};
   const sizeBins=(traySize)=>{bins.forEach(b=>{const box=b.querySelector('.bin-items');if(!box)return;
-    const bt=[...box.querySelectorAll('.tile')];const bw=box.clientWidth||b.clientWidth;const label=b.querySelector('.bin-label');
-    const lh=label?label.getBoundingClientRect().height+8:28;const bh=Math.max(48,(b.clientHeight||80)-lh);
-    const m=Math.max(bt.length,2);const cols=Math.min(m,Math.max(2,Math.floor(bw/72)));
-    let bs=Math.floor(Math.min(traySize?traySize*.78:140,(bw-8)/Math.max(1,Math.min(m,cols))-8,(bh-8)/Math.max(1,Math.ceil(m/Math.max(cols,1)))-6));
-    bs=Math.max(64,Math.min(bs,160));bt.forEach(t=>{t.style.width=t.style.height=bs+'px'})})};
+    const bt=[...box.querySelectorAll('.tile')];if(!bt.length)return;
+    const label=b.querySelector('.bin-label');
+    const lh=label?Math.ceil(label.getBoundingClientRect().height)+12:32;
+    const bw=Math.max(40,(box.clientWidth||b.clientWidth)-4);
+    const bh=Math.max(40,(b.clientHeight||80)-lh);
+    const m=bt.length;let bs=56;
+    for(let cols=m;cols>=1;cols--){const rows=Math.ceil(m/cols);const s=Math.floor(Math.min((bw-8-(cols-1)*8)/cols,(bh-8-(rows-1)*8)/rows));if(s>bs)bs=s}
+    if(traySize)bs=Math.min(bs,Math.round(traySize*0.9));
+    bs=Math.max(56,Math.min(bs,160));bt.forEach(t=>{t.style.width=t.style.height=bs+'px'})})};
   const ts=sizeTray();sizeBins(ts);
 }
 function layoutPlayControls(){if(!run||!run.controls)return;const c=run.controls;if(!c.closest('.playfull'))return;
