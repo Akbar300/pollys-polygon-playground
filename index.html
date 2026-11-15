@@ -209,6 +209,73 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 .sec small{font-size:15px;color:var(--muted);font-weight:500}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
 
+/* ===== playfull geometry: slim top bar, nearly full-width stage ===== */
+.actscreen.playfull{height:100%;min-height:0;overflow:hidden}
+.actscreen.playfull .actbar{flex:none}
+.act.playfull{display:flex;flex-direction:column;grid-template-columns:none;grid-template-rows:none;align-content:stretch;gap:8px;min-height:0;height:100%}
+.act.playfull .stage{flex:1 1 auto;min-height:0;width:100%;height:auto}
+.act.playfull .stage.ar{aspect-ratio:unset;max-height:none;min-height:0;width:100%;flex:1 1 auto;height:auto}
+.act.playfull .panel,.act.playfull .panel.slim{flex:none;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:8px;min-height:0;overflow:visible}
+.act.playfull .prompt{flex:1 1 auto;min-width:0;padding:8px 14px;margin:0}
+.act.playfull .prompt h2{font-size:22px;line-height:1.15}
+.act.playfull .prompt p{font-size:16px;margin:2px 0 0}
+.act.playfull .actionbar,.act.playfull .panel > .mascot-row{flex:0 1 42%;margin:0;flex-direction:row;align-items:center;gap:8px;max-width:46%;min-width:0}
+.act.playfull .actionbar .mascot-row{margin:0;flex:1 1 auto;min-width:0;align-items:center}
+.act.playfull .actionbar .mascot,.act.playfull .panel .mascot{width:56px;height:56px;flex:none}
+.act.playfull .actionbar .bubble,.act.playfull .panel .bubble{min-height:44px;max-height:4.6em;overflow:auto;font-size:15px;padding:6px 10px;line-height:1.25}
+.act.playfull .abtns{flex:none}
+.act.playfull .abtns .helpbtn{min-height:48px;padding:6px 12px;font-size:16px}
+.act.playfull .actionbar{position:static;background:transparent;box-shadow:none;padding:0}
+.act.playfull .controls{flex:0 0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;align-content:start;min-height:0;overflow:visible}
+.act.playfull .controls:empty{display:none}
+.act.playfull .controls.row{display:flex;flex-wrap:nowrap;justify-content:center}
+.act.playfull .controls.row .btn{flex:1 1 0;max-width:240px}
+.act.playfull .controls .btn{min-height:56px;font-size:20px}
+@media (max-height:650px){.act.playfull .controls{gap:6px}.act.playfull .controls .btn{min-height:48px;font-size:18px;padding:6px 12px}}
+/* sorter fills the stage and scales */
+.act.playfull .sorter{height:100%;min-height:0;padding:10px;gap:12px;box-sizing:border-box}
+.act.playfull .tray{flex:1 1 auto;min-height:0;gap:14px;align-content:center;justify-content:center}
+.act.playfull .bins{flex:1 1 auto;min-height:0;height:auto;gap:12px;align-items:stretch}
+.act.playfull .bin{min-height:0;height:100%;padding:8px;gap:6px}
+.act.playfull .bin-items{flex:1;min-height:0;align-content:center;align-items:center;gap:8px}
+.act.playfull .bin-label{font-size:20px}
+.act.playfull .sorter.split2{display:grid;grid-template-columns:minmax(170px,.82fr) minmax(0,1.7fr) minmax(170px,.82fr);grid-template-rows:minmax(0,1fr);align-items:stretch}
+.act.playfull .sorter.split2 .tray{grid-column:2;grid-row:1;min-width:0;min-height:0;flex:unset}
+.act.playfull .sorter.split2 .bins{display:contents}
+.act.playfull .sorter.split2 .bin:nth-child(1){grid-column:1;grid-row:1}
+.act.playfull .sorter.split2 .bin:nth-child(2){grid-column:3;grid-row:1}
+.act.playfull .sorter.bottom{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(130px,.95fr);align-items:stretch}
+.act.playfull .sorter.bottom .tray,.act.playfull .sorter.bottom .bins{min-width:0;min-height:0;flex:unset;height:100%}
+.act.playfull .sorter.bottom .bins{display:grid;align-items:stretch}
+@media (max-width:900px){
+  .actscreen.playfull{height:100%;min-height:0;overflow:hidden}
+  .act.playfull{grid-template-columns:none;grid-template-rows:none;align-content:stretch;height:100%}
+  .act.playfull .stage,.act.playfull .stage.ar{min-height:0;max-height:none;width:100%}
+  .act.playfull .panel,.act.playfull .panel.slim{flex-wrap:wrap}
+  .act.playfull .prompt{flex:1 1 100%}
+  .act.playfull .actionbar,.act.playfull .panel > .mascot-row{max-width:none;flex:1 1 auto}
+}
+@media (max-width:560px){
+  .act.playfull .tile{width:auto;height:auto}
+  .act.playfull .prompt h2{font-size:18px}
+  .act.playfull .prompt p{font-size:14px}
+  .act.playfull .actionbar,.act.playfull .panel > .mascot-row{max-width:48%;flex-basis:48%}
+  .act.playfull .actionbar .mascot,.act.playfull .panel .mascot{width:48px;height:48px}
+  .act.playfull .sorter.split2{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(120px,.9fr) minmax(120px,.9fr)}
+  .act.playfull .sorter.split2 .tray{grid-column:1;grid-row:1}
+  .act.playfull .sorter.split2 .bin:nth-child(1){grid-column:1;grid-row:2}
+  .act.playfull .sorter.split2 .bin:nth-child(2){grid-column:1;grid-row:3}
+  .actscreen.playfull .actbar{flex-wrap:wrap}
+}
+@media (max-height:650px){
+  .act.playfull .prompt{padding:6px 12px}
+  .act.playfull .prompt h2{font-size:20px}
+  .act.playfull .prompt p{font-size:15px}
+  .act.playfull .actionbar .mascot,.act.playfull .panel .mascot{width:48px;height:48px}
+  .act.playfull .sorter{padding:8px;gap:8px}
+}
+
+
 /* ---- buddies ---- */
 .buddy .fz{filter:url(#fur)}
 .buddy .eyes{animation:blinkO 5s infinite}.buddy .shut{opacity:0;animation:blinkC 5s infinite}
@@ -310,7 +377,7 @@ const sfx={tap:()=>tone(700,.07,'triangle'),bit:()=>{tone(880,.08,'triangle');to
 /* ---------- confetti (hand-made canvas) ---------- */
 const cv=$('#confetti'),cx=cv.getContext('2d');let parts=[],raf=0;
 function sizeCv(){const d=window.devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d}
-sizeCv();addEventListener('resize',sizeCv);
+sizeCv();addEventListener('resize',()=>{sizeCv();if(run)scheduleFit()});
 const CCOL=['#7C3AED','#F59E0B','#10B981','#EF4444','#3B82F6','#EC4899','#FACC15','#14B8A6'];
 function confetti(x=innerWidth/2,y=innerHeight/3,n=60,sp=1){for(let i=0;i<n;i++){const a=rf(0,Math.PI*2),v=rf(2,9)*sp;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-rf(2,6),r:rf(6,11),c:pick(CCOL),rot:rf(0,6),vr:rf(-.3,.3),life:rf(55,105),k:rnd(0,2)})}if(!raf)raf=requestAnimationFrame(tick)}
 function tick(){const d=window.devicePixelRatio||1;cx.setTransform(d,0,0,d,0,0);cx.clearRect(0,0,innerWidth,innerHeight);for(const p of parts){p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.vx*=.985;p.rot+=p.vr;p.life--;cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot);cx.globalAlpha=Math.max(0,Math.min(1,p.life/25));cx.fillStyle=p.c;if(p.k===0)cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);else if(p.k===1){cx.beginPath();cx.arc(0,0,p.r/2.4,0,7);cx.fill()}else{cx.beginPath();cx.moveTo(0,-p.r/2);cx.lineTo(p.r/2,p.r/2);cx.lineTo(-p.r/2,p.r/2);cx.closePath();cx.fill()}cx.restore()}parts=parts.filter(p=>p.life>0&&p.y<innerHeight+50);if(parts.length)raf=requestAnimationFrame(tick);else{raf=0;cx.clearRect(0,0,innerWidth,innerHeight)}}
@@ -571,16 +638,46 @@ function showActivity(id,lvl=0){closeModal();const act=ACTS.find(a=>a.id===id);m
  const prompt=h('div',{class:'prompt'},h('h2'),h('p'));
  const controls=h('div',{class:'controls',id:'controls'});
  const S=curSet();const guide=(act.group==='ch'&&lvl===2)?S.roles.tricky:S.guides[act.id];const mascot=mascotEl('',guide);const bubble=h('div',{class:'bubble',id:'bubble'});
- const panel=h('div',{class:'panel'},prompt,controls,h('div',{class:'mascot-row'},mascot,bubble));
- const scr=h('div',{class:'actscreen',style:`--c:${act.color}`},bar,h('div',{class:'act'},stage,panel));
+ const coach=h('div',{class:'mascot-row'},mascot,bubble);const panel=h('div',{class:'panel slim'},prompt,coach);
+ const scr=h('div',{class:'actscreen playfull',style:`--c:${act.color}`},bar,h('div',{class:'act playfull'},panel,stage,controls));
  main.append(scr);
  run={act,lvl,guide,who:guide,round:0,mistakes:0,roundMistakes:0,solved:false,stage,prompt,controls,bubble,mascot,dots};
  startRound()}
 function startRound(){main.scrollTop=0;run.roundMistakes=0;run.solved=false;keyHandler=null;run.stage.innerHTML='';run.controls.innerHTML='';run.dbg={};
  [...run.dots.children].forEach((d,i)=>d.className='dot'+(i<run.round?' done':i===run.round?' cur':''));
- run.act.round(run.lvl,api);if(fitStage()){keyHandler=null;run.stage.innerHTML='';run.controls.innerHTML='';run.dbg={};run.act.round(run.lvl,api);fitStage()}
+ run.act.round(run.lvl,api);if(fitStage()){keyHandler=null;run.stage.innerHTML='';run.controls.innerHTML='';run.dbg={};run.act.round(run.lvl,api);fitStage()}scheduleFit()
  if(run.round===0&&!run.bubble.textContent)say(run.act.tips[run.lvl]);else if(!run.solved)say(run.round===0?run.act.tips[run.lvl]:pick(['Here comes another one!','You can do it!','Ready? Go!','Keep it up!','Next challenge!']))}
-function fitStage(){if(!run)return false;const r0=run.stage.getBoundingClientRect();const sv=run.stage.querySelector(':scope>svg');if(sv&&sv.viewBox&&sv.viewBox.baseVal&&sv.viewBox.baseVal.width){const vb=sv.viewBox.baseVal;run.stage.style.setProperty('--ar',`${vb.width} / ${vb.height}`);run.stage.classList.add('ar')}else run.stage.classList.remove('ar');const r1=run.stage.getBoundingClientRect();return Math.abs(r0.width-r1.width)>.5||Math.abs(r0.height-r1.height)>.5||Math.abs(r0.top-r1.top)>.5}
+
+function fitSorter(){if(!run||!run.stage)return;const wrap=run.stage.querySelector('.sorter');if(!wrap)return;
+  const tray=wrap.querySelector('.tray');const row=wrap.querySelector('.bins');if(!tray||!row)return;
+  const bins=[...row.querySelectorAll(':scope > .bin')];
+  const tileFit=(tw,th,n,gap=12)=>{if(tw<40||th<40||!n)return 0;let best=0;for(let cols=n;cols>=1;cols--){const rows=Math.ceil(n/cols);const s=Math.floor(Math.min((tw-gap*(cols-1)-8)/cols,(th-gap*(rows-1)-8)/rows));if(s>best)best=s}return best};
+  const nTiles=tray.querySelectorAll(':scope > .tile').length||6;
+  const W=run.stage.clientWidth,H=run.stage.clientHeight;
+  let layout=wrap.dataset.laid;
+  if(!layout){layout='bottom';if(bins.length===2&&W>=700){const side=tileFit(W*0.52,H-20,nTiles);const bot=tileFit(W-20,H*0.55,nTiles);if(side>=bot*0.92)layout='split2'}wrap.dataset.laid=layout}
+  wrap.classList.toggle('split2',layout==='split2');wrap.classList.toggle('bottom',layout==='bottom');wrap.classList.remove('side');
+  const sizeTray=()=>{const tiles=[...tray.querySelectorAll(':scope > .tile')];const n=tiles.length;if(!n)return 0;
+    let best=tileFit(tray.clientWidth,tray.clientHeight,n);
+    best=Math.max(88,Math.min(best||88,260));
+    tiles.forEach(t=>{t.style.width=t.style.height=best+'px'});return best};
+  const sizeBins=(traySize)=>{bins.forEach(b=>{const box=b.querySelector('.bin-items');if(!box)return;
+    const bt=[...box.querySelectorAll('.tile')];const bw=box.clientWidth||b.clientWidth;const label=b.querySelector('.bin-label');
+    const lh=label?label.getBoundingClientRect().height+8:28;const bh=Math.max(48,(b.clientHeight||80)-lh);
+    const m=Math.max(bt.length,2);const cols=Math.min(m,Math.max(2,Math.floor(bw/72)));
+    let bs=Math.floor(Math.min(traySize?traySize*.78:140,(bw-8)/Math.max(1,Math.min(m,cols))-8,(bh-8)/Math.max(1,Math.ceil(m/Math.max(cols,1)))-6));
+    bs=Math.max(64,Math.min(bs,160));bt.forEach(t=>{t.style.width=t.style.height=bs+'px'})})};
+  const ts=sizeTray();sizeBins(ts);
+}
+function layoutPlayControls(){if(!run||!run.controls)return;const c=run.controls;if(!c.closest('.playfull'))return;
+  const btns=[...c.querySelectorAll(':scope > .btn, :scope > button')];
+  if(!btns.length){c.hidden=true;c.classList.remove('row');return}
+  c.hidden=false;
+  const short=btns.every(b=>{const t=b.textContent.replace(/\s+/g,' ').trim();return /^(true|false|yes|no|\d+)$/i.test(t)||(!t.includes(' ')&&t.length<=10)});
+  c.classList.toggle('row',short&&btns.length<=5);
+}
+function scheduleFit(){fitStage();fitSorter();layoutPlayControls();requestAnimationFrame(()=>{fitSorter();layoutPlayControls()})}
+function fitStage(){if(!run)return false;const r0=run.stage.getBoundingClientRect();const sv=run.stage.querySelector(':scope>svg');if(sv&&sv.viewBox&&sv.viewBox.baseVal&&sv.viewBox.baseVal.width){const vb=sv.viewBox.baseVal;run.stage.style.setProperty('--ar',`${vb.width} / ${vb.height}`);run.stage.classList.add('ar')}else run.stage.classList.remove('ar');const r1=run.stage.getBoundingClientRect();fitSorter();layoutPlayControls();return Math.abs(r0.width-r1.width)>.5||Math.abs(r0.height-r1.height)>.5||Math.abs(r0.top-r1.top)>.5}
 const starStr=n=>'★'.repeat(n)+'☆'.repeat(3-n);
 function levelDone(){const a=run.act,l=run.lvl,m=run.mistakes;const stars=m<=1?3:m<=4?2:1;st.prog[a.id]=st.prog[a.id]||[0,0,0];st.prog[a.id][l]=Math.max(st.prog[a.id][l]||0,stars);const bonus=stars*10;st.points+=bonus;save();updateHud();sfx.win();bigConfetti();
  modal(h('div',{class:'modal',id:'levelModal'},h('div',{class:'duo'},mascotEl('happy',curSet().roles.done),mascotEl('happy',run.guide===curSet().roles.cheer?curSet().roles.streak:curSet().roles.cheer)),h('h2',{},stars===3?'Perfect!':stars===2?'Great job!':'Level complete!'),h('div',{class:'bigstars'},[0,1,2].map(i=>h('span',{class:i<stars?'on':'',style:`animation-delay:${.15+i*.25}s`},'★'))),h('p',{},`${a.title}: ${a.levels[l]}`,h('br'),`+${bonus} bonus points!`),h('div',{class:'mbtns'},l<2?h('button',{class:'btn go',onclick:()=>showActivity(a.id,l+1)},'Next level ▶'):null,h('button',{class:'btn',onclick:()=>showActivity(a.id,l)},'Play again'),h('button',{class:'btn',onclick:()=>{closeModal();showHome()}},'Home'))));
@@ -611,7 +708,7 @@ const compactOpt=s=>{const t=String(s==null?'':s).replace(/<[^>]+>/g,' ').replac
 function choiceButtons(opts,onPick){const wrap=h('div',{class:'qopts'+(opts.every(o=>compactOpt(o.label))?' row':'')});const bs=opts.map(o=>{const b=h('button',{class:'btn','data-v':String(o.v)},o.icon?frag(o.icon):null,o.label);b.onclick=()=>{if(run.solved||b.disabled)return;onPick(o.v,b)};wrap.append(b);return b});run.controls.append(wrap);return bs}
 /* ======================= ACTIVITY 1: SHAPE SORTER ======================= */
 function sortRound(lvl,api){let bins,items=[],extra='';
- if(lvl===0){api.ask('Polygon or not?','Drag each shape into the right bin. A polygon is CLOSED and has only STRAIGHT sides.');
+ if(lvl===0){api.ask('Polygon or not?','Drag each shape into the correct bin. A polygon is CLOSED and has only STRAIGHT sides.');
   bins=[{label:'Polygon',sub:'closed, straight sides'},{label:'Not a polygon'}];
   const np=shuffle(Object.keys(NONPOLY)).slice(0,rnd(2,3));
   const ps=shuffle(['equilateral','rightTri','square','rectangle','rhombus','trapezoid','pentagon','hexagon','octagon','parallelogram','house','obtuseTri','scalene']).slice(0,6-np.length);
@@ -637,7 +734,7 @@ function sortRound(lvl,api){let bins,items=[],extra='';
    onDrop:(x,y)=>{binEls.forEach(b=>b.classList.remove('over'));const bi=binEls.findIndex(b=>inRect(b,x,y));return bi<0?false:place(it,bi)}})});
  function reason(it){const sh=it.shape;if(lvl===0)return sh.polygon?'It is closed and every side is straight, so it IS a polygon.':NONPOLY[sh.key].why;if(lvl===1)return`It has ${sh.I.n} sides, so it is a ${PNAME[sh.I.n]}.`;const I=sh.I;if(it.mode==='right')return I.right?`It has ${I.right} right angle${I.right>1?'s':''} (square corner${I.right>1?'s':''}).`:'None of its corners is a perfect square corner.';if(it.mode==='par')return I.par?'Some of its sides go the same way, like train tracks.':'Its sides would all meet if you made them longer — no parallel sides.';return I.allEqual?'Every side is the same length.':'Some sides are longer than others.'}
  function place(it,bi){if(sel){sel.el.classList.remove('sel');sel=null}
-  if(it.bin===bi){it.done=true;it.el.style.transition='none';it.el.style.transform='';binEls[bi].querySelector('.bin-items').append(it.el);left--;const c=centerOf(binEls[bi]);if(left===0)api.good('You sorted every shape!',c.x,c.y);else{api.bit(c.x,c.y);say('Yes! '+reason(it),'happy')}return true}
+  if(it.bin===bi){it.done=true;it.el.style.transition='none';it.el.style.transform='';binEls[bi].querySelector('.bin-items').append(it.el);fitSorter();left--;const c=centerOf(binEls[bi]);if(left===0)api.good('You sorted every shape!',c.x,c.y);else{api.bit(c.x,c.y);say('Yes! '+reason(it),'happy')}return true}
   it.tries++;const b=binEls[bi];b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');
   api.bad(it.tries===1?(lvl===0?'Hmm, not that bin. Is it closed? Are ALL of its sides straight?':lvl===1?'Not quite! Touch each side with your finger and count out loud.':'Not quite! '+extra):'Look again: '+reason(it)+` It goes in "${bins[it.bin].label}".`);return false}
  wrap.append(tray,row);api.stage.append(wrap);run.dbg={items:items.map(i=>({bin:i.bin})),bins:bins.length}}
