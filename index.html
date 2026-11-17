@@ -476,6 +476,15 @@ body.set-puff .hero{background:linear-gradient(120deg,#DB2777,#9333EA)}
   .home{max-width:1320px;margin:0 auto;width:100%;box-sizing:border-box}
   .learnshell{max-width:1320px;margin:0 auto;width:100%}
 }
+
+/* fix: phone portrait — keep move-button labels on one line (icon above label) */
+@media (max-width:560px){.move-btns .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:15px;line-height:1.1;white-space:nowrap;padding:6px 4px}}
+/* fix: phone landscape — let the helper bubble show its whole message */
+@media (max-height:520px) and (min-width:600px){
+  .act.playfull .actionbar,.act.playfull .panel > .mascot-row{max-width:50%}
+  .act.playfull .actionbar .bubble,.act.playfull .panel .bubble{max-height:none;overflow:visible;font-size:13px;line-height:1.25;padding:5px 9px}
+  .act.playfull .actionbar .bubble .who,.act.playfull .panel .bubble .who{display:none}
+}
 </style>
 </head>
 <body>
