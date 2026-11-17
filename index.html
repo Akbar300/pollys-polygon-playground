@@ -890,8 +890,11 @@ function fitSorter(){if(!run||!run.stage)return;const wrap=run.stage.querySelect
   const nLeft=tray.querySelectorAll(':scope > .tile').length;
   wrap.classList.toggle('tray-empty',nLeft===0);
   const sizeTray=()=>{const tiles=[...tray.querySelectorAll(':scope > .tile')];const n=tiles.length;if(!n)return 0;
-    let best=tileFit(tray.clientWidth,tray.clientHeight,n);
-    best=Math.max(88,Math.min(best||88,260));
+    let best;
+    if(matchMedia('(max-width:900px)').matches){/* phone/tablet-portrait: page is auto-height, so tray height depends on the tiles. Size from width only (max 3 per row) to avoid a runaway feedback loop. */
+      const cols=Math.min(n,3),gap=12;best=Math.floor((tray.clientWidth-gap*(cols-1)-8)/cols);best=Math.max(72,Math.min(best||72,150))}
+    else{best=tileFit(tray.clientWidth,tray.clientHeight,n);
+    best=Math.max(88,Math.min(best||88,260))}
     tiles.forEach(t=>{t.style.width=t.style.height=best+'px'});return best};
   const sizeBins=(traySize)=>{bins.forEach(b=>{const box=b.querySelector('.bin-items');if(!box)return;
     const bt=[...box.querySelectorAll('.tile')];if(!bt.length)return;
