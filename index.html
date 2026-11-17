@@ -533,6 +533,24 @@ body.set-puff .hero{background:linear-gradient(120deg,#DB2777,#9333EA)}
   .act.playfull.has-keypad .kp-display,.act.playfull:has(.keypad) .kp-display{height:64px;font-size:36px}
   .act.playfull:has(.keypad) .key,.act.playfull.has-keypad .key{min-height:68px;height:68px;font-size:28px}
 }
+
+/* Area Builder tile screen: one tidy centered row of controls */
+.act.playfull .controls.tilebar:has(#nextBtn) #checkBtn,.act.playfull .controls.tilebar:has(#nextBtn) .clearbtn{display:none}
+.act.playfull .controls.tilebar:not(:has(.keypad)){display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;max-width:760px;width:100%;margin:0 auto}
+.act.playfull .controls.tilebar:not(:has(.keypad)) .readout{flex:1 1 100%;max-width:520px}
+.act.playfull .controls.tilebar:not(:has(.keypad)) .counter{flex:1 1 100%;text-align:center;padding:8px 14px;min-height:0}
+.act.playfull .controls.tilebar:not(:has(.keypad)) .btn{flex:1 1 0;min-width:0;max-width:240px;width:auto}
+.act.playfull .controls.tilebar:not(:has(.keypad)) .btn.next{flex:1 1 0;max-width:220px}
+@media (min-width:700px){.act.playfull .controls.tilebar:not(:has(.keypad)) .counter{flex:0 0 auto;align-self:stretch;display:flex;align-items:center}.act.playfull .controls.tilebar:not(:has(.keypad)) .readout{flex:1 1 320px}}
+@media (max-height:520px) and (min-width:600px){.act.playfull .controls.tilebar:not(:has(.keypad)){flex-direction:column;flex-wrap:nowrap;max-width:none}.act.playfull .controls.tilebar:not(:has(.keypad)) .btn,.act.playfull .controls.tilebar:not(:has(.keypad)) .btn.next{flex:0 0 auto;width:100%;max-width:none}.act.playfull .controls.tilebar:not(:has(.keypad)) .counter{flex:0 0 auto;width:100%}}
+/* Big screens: keep answer/check buttons a sensible size, centered under the stage */
+@media (min-width:900px) and (min-height:521px){
+ .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)){max-width:880px;margin-left:auto;margin-right:auto;justify-content:center}
+ .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)) #checkBtn{grid-column:1/-1;justify-self:center;width:100%;max-width:340px}
+ .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)):not(.tilebar)>:not(.btn){grid-column:1/-1;width:100%}
+ .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)).row{max-width:760px}
+ .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)) .counter{grid-column:1/-1;justify-self:center;text-align:center;width:auto;min-width:240px}
+}
 </style>
 </head>
 <body>
@@ -576,6 +594,7 @@ const KEY='pollysPolygonPlayground.v1';
 const fresh=()=>({points:0,streak:0,bestStreak:0,correct:0,prog:{},badges:{},muted:false,buddySet:'feel',secrets:{},learned:{}});
 let st=fresh();
 try{const raw=localStorage.getItem(KEY);if(raw)st=Object.assign(fresh(),JSON.parse(raw));}catch(e){}
+if(!st.areaV2){const a=st.prog&&st.prog.area;if(a&&a.length<=3)st.prog.area=[a[0]||0,0,a[1]||0,a[2]||0];st.areaV2=1}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
 
 /* ---------- sound (WebAudio, no files) ---------- */
@@ -754,8 +773,9 @@ function revealSecret(k,why){if(secretOpen(k))return false;st.secrets[k]=Date.no
 const ACT_IDS=['sort','tap','quad','peri','area','angle','lines','cross','sym','moves','blue'];
 const CHALLENGE_IDS=['angle','lines','cross','sym','moves','blue'];
 const levelStars=(id,l)=>(st.prog[id]||[0,0,0])[l]||0;
-const actDone=id=>[0,1,2].every(l=>levelStars(id,l)>0);
-const totalStars=()=>ACT_IDS.reduce((t,id)=>t+[0,1,2].reduce((a,l)=>a+levelStars(id,l),0),0);
+const LVS=id=>{const a=typeof ACTS!=='undefined'&&ACTS.find(x=>x.id===id);return a?a.levels.map((_,i)=>i):[0,1,2]};
+const actDone=id=>LVS(id).every(l=>levelStars(id,l)>0);
+const totalStars=()=>ACT_IDS.reduce((t,id)=>t+LVS(id).reduce((a,l)=>a+levelStars(id,l),0),0);
 const BADGES=[
  {id:'first',name:'First Shape!',desc:'Get your first answer right',g:'star',c:'#F59E0B',test:()=>st.correct>=1},
  {id:'b_sort',name:'Sorting Superstar',desc:'Finish all 3 Shape Sorter levels',g:'tri',c:'#7C3AED',test:()=>actDone('sort')},
@@ -772,7 +792,7 @@ const BADGES=[
  {id:'challenge',name:'Challenge Champion',desc:'Finish every Challenge Zone activity',g:'star',c:'#0F766E',test:()=>CHALLENGE_IDS.every(actDone)},
  {id:'streak5',name:'Hot Streak',desc:'5 right answers in a row',g:'flame',c:'#EA580C',test:()=>st.bestStreak>=5},
  {id:'streak10',name:'On Fire!',desc:'10 right answers in a row',g:'flame',c:'#DC2626',test:()=>st.bestStreak>=10},
- {id:'perfect',name:'Perfect Level',desc:'Get 3 stars on any level',g:'star3',c:'#CA8A04',test:()=>ACT_IDS.some(id=>[0,1,2].some(l=>levelStars(id,l)===3))},
+ {id:'perfect',name:'Perfect Level',desc:'Get 3 stars on any level',g:'star3',c:'#CA8A04',test:()=>ACT_IDS.some(id=>LVS(id).some(l=>levelStars(id,l)===3))},
  {id:'p100',name:'100 Club',desc:'Earn 100 points',g:'100',c:'#0891B2',test:()=>st.points>=100},
  {id:'p500',name:'Point Powerhouse',desc:'Earn 500 points',g:'500',c:'#9D174D',test:()=>st.points>=500},
  {id:'stars27',name:'Star Collector',desc:'Collect 27 stars',g:'star',c:'#DB2777',test:()=>totalStars()>=27},
@@ -897,7 +917,7 @@ function layoutPlayControls(){if(!run||!run.controls)return;const c=run.controls
 function scheduleFit(){fitStage();fitSorter();layoutPlayControls();requestAnimationFrame(()=>{fitSorter();layoutPlayControls()})}
 function fitStage(){if(!run)return false;const r0=run.stage.getBoundingClientRect();const sv=run.stage.querySelector(':scope>svg');if(sv&&sv.viewBox&&sv.viewBox.baseVal&&sv.viewBox.baseVal.width){const vb=sv.viewBox.baseVal;run.stage.style.setProperty('--ar',`${vb.width} / ${vb.height}`);run.stage.classList.add('ar')}else run.stage.classList.remove('ar');const r1=run.stage.getBoundingClientRect();fitSorter();layoutPlayControls();return Math.abs(r0.width-r1.width)>.5||Math.abs(r0.height-r1.height)>.5||Math.abs(r0.top-r1.top)>.5}
 const starStr=n=>'★'.repeat(n)+'☆'.repeat(3-n);
-function levelDone(){const a=run.act,l=run.lvl,m=run.mistakes;const stars=m<=1?3:m<=4?2:1;st.prog[a.id]=st.prog[a.id]||[0,0,0];st.prog[a.id][l]=Math.max(st.prog[a.id][l]||0,stars);const bonus=stars*10;st.points+=bonus;save();updateHud();sfx.win();bigConfetti();
+function levelDone(){const a=run.act,l=run.lvl,m=run.mistakes;const stars=m<=1?3:m<=4?2:1;st.prog[a.id]=st.prog[a.id]||a.levels.map(()=>0);st.prog[a.id][l]=Math.max(st.prog[a.id][l]||0,stars);const bonus=stars*10;st.points+=bonus;save();updateHud();sfx.win();bigConfetti();
  modal(h('div',{class:'modal',id:'levelModal'},h('div',{class:'duo'},mascotEl('happy',curSet().roles.done),mascotEl('happy',run.guide===curSet().roles.cheer?curSet().roles.streak:curSet().roles.cheer)),h('h2',{},stars===3?'Perfect!':stars===2?'Great job!':'Level complete!'),h('div',{class:'bigstars'},[0,1,2].map(i=>h('span',{class:i<stars?'on':'',style:`animation-delay:${.15+i*.25}s`},'★'))),h('p',{},`${a.title}: ${a.levels[l]}`,h('br'),`+${bonus} bonus points!`),h('div',{class:'mbtns'},l<2?h('button',{class:'btn go',onclick:()=>showActivity(a.id,l+1)},'Next level ▶'):null,h('button',{class:'btn',onclick:()=>showActivity(a.id,l)},'Play again'),h('button',{class:'btn',onclick:()=>{closeModal();showHome()}},'Home'))));
  keyHandler=null;checkBadges();if(!navigator.webdriver&&!secretOpen(st.buddySet)&&st.correct>=20&&Math.random()<.1)setTimeout(()=>revealSecret(st.buddySet,'was peeking at your shapes and wants to join the crew!'),900)}
 
@@ -1329,33 +1349,44 @@ function periRound(lvl,api){
 
 /* ======================= ACTIVITY 6: AREA BUILDER ======================= */
 function areaRound(lvl,api){const C=10;
- if(lvl===0){const g=Math.random()<.5?rectCells(rnd(2,6),rnd(2,4)):skyline(rnd(3,5),rnd(2,4));const cols=g.w+2,rows=g.h+2,A=g.cells.size;const svg=s('svg',{viewBox:`0 0 ${cols*C} ${rows*C}`,id:'areaSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C);svg.append(lay);
+ if(lvl===0||lvl===1){let g,miss=new Set(),W,H;
+  if(lvl===0){g=rectCells(rnd(2,6),rnd(2,5));if(g.w===1||g.h===1)g=rectCells(3,2)}
+  else if(Math.random()<.7){W=rnd(3,6);H=rnd(3,5);const base=rectCells(W,H),cells=new Set(base.cells);const want=rnd(1,Math.min(4,Math.floor(W*H/4)));const style=pick(['corner','edge','hole','mix']);
+   const isCorner=k=>{const[x,y]=k.split(',').map(Number);return(x===0||x===W-1)&&(y===0||y===H-1)};const isEdge=k=>{const[x,y]=k.split(',').map(Number);return x===0||x===W-1||y===0||y===H-1};
+   let pool=[...cells].filter(k=>style==='corner'?isCorner(k):style==='edge'?isEdge(k):style==='hole'?!isEdge(k):true);if(!pool.length)pool=[...cells].filter(isCorner);
+   for(let t=0;t<200&&miss.size<want;t++){const k=pick(pool);if(miss.has(k))continue;cells.delete(k);if(connected(cells)){miss.add(k)}else cells.add(k)}
+   if(!miss.size){const k=`${W-1},0`;cells.delete(k);miss.add(k)}g={cells,w:W,h:H,miss:true}}
+  else{do{g=skyline(rnd(3,6),rnd(3,4))}while(g.cells.size===g.w*g.h||g.cells.size<4||g.w*g.h-g.cells.size>5);for(let x=0;x<g.w;x++)for(let y=0;y<g.h;y++)if(!g.cells.has(`${x},${y}`))miss.add(`${x},${y}`);g.miss=true}
+  const cols=g.w+2,rows=g.h+2,A=g.cells.size;const svg=s('svg',{viewBox:`0 0 ${cols*C} ${rows*C}`,id:'areaSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C);svg.append(lay);
   const sh=s('g',{transform:`translate(${C} ${C})`});svg.append(sh);let count=0;
+  miss.forEach(k=>{const[x,y]=k.split(',').map(Number);sh.append(s('rect',{x:x*C+.6,y:y*C+.6,width:C-1.2,height:C-1.2,rx:1,fill:'#fff',stroke:'#F43F5E','stroke-width':.6,'stroke-dasharray':'1.6 1.2','pointer-events':'none'}))});
   g.cells.forEach(k=>{const[x,y]=k.split(',').map(Number);const r=s('rect',{x:x*C,y:y*C,width:C,height:C,fill:'#86EFAC',stroke:'#166534','stroke-width':.6,class:'hit'});sh.append(r);let done=false;r.addEventListener('pointerdown',e=>{e.preventDefault();if(run.solved||done)return;done=true;count++;r.setAttribute('fill','#22C55E');sh.append(s('text',{x:x*C+C/2,y:y*C+C/2+1.8,'text-anchor':'middle','font-size':5,'font-weight':700,fill:'#fff','pointer-events':'none',class:'popin'},count));sfx.tap()})});
-  api.ask('What is the area?','Each square is 1 square unit. Tap the squares to count them, then type your answer.');
-  keypad(v=>{if(v===A){const c=centerOf($('#kpDisplay'));api.good(g.rect?`${g.h} rows of ${g.w} = ${A} square units.`:`The area is ${A} square units.`,c.x,c.y);return true}api.bad(api.tries===0?(g.rect?'Not quite! Tip: count the squares in one row, then count the rows.':'Not quite! Tap each square once to count it.'):`You have counted ${count} squares so far. Count every square inside the shape!`);return false},'sq. units');run.dbg={answer:A};return}
- if(lvl===1){const cols=8,rows=6,mode=pick(['cover','build']);let target=null,N=0;
+  const M=miss.size;
+  if(lvl===0)api.ask('What is the area?','Each square is 1 square unit. Count one row, then count the rows. Tap squares to count if it helps.');
+  else if(g.miss)api.ask('What is the area?',`Some squares are missing (the dashed ones). Tip: find the area of the whole rectangle, then take away the missing squares.`);
+  else api.ask('What is the area?','Each square is 1 square unit. Tap each square once to count it.');
+  keypad(v=>{if(v===A){const c=centerOf($('#kpDisplay'));api.good(lvl===0?`${g.h} rows of ${g.w} = ${g.h} × ${g.w} = ${A} square units.`:g.miss?`The whole rectangle is ${g.h} × ${g.w} = ${g.w*g.h}. Take away ${M} missing: ${g.w*g.h} − ${M} = ${A} square units.`:`The area is ${A} square units.`,c.x,c.y);return true}
+   api.bad(api.tries===0?(lvl===0?'Not quite! Count the squares in one row, then count the rows. Rows × squares in a row = area.':g.miss?`Not quite! How many squares would the whole rectangle have? Then subtract the ${M} dashed missing square${M>1?'s':''}.`:'Not quite! Tap each square once to count it.'):(lvl===0?`There are ${g.h} rows with ${g.w} squares in each row. ${g.h} × ${g.w} = ?`:g.miss?`The whole rectangle is ${g.h} × ${g.w} = ${g.w*g.h}. Now take away ${M}.`:`You have counted ${count} squares so far. Count every square inside the shape!`));return false},'sq. units');run.dbg={answer:A};return}
+ if(lvl===2){const cols=8,rows=6,mode=pick(['cover','build']);let target=null,N=0;
   if(mode==='cover'){let g;do{g=skyline(rnd(3,5),rnd(2,4))}while(g.cells.size<4);target=new Set();g.cells.forEach(k=>{const[x,y]=k.split(',').map(Number);target.add(`${x+1},${y+1}`)})}else N=rnd(5,12);
-  const svg=s('svg',{viewBox:`-3 -3 ${cols*C+30} ${rows*C+6}`,id:'areaSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C,'#D1D5DB',.5);svg.append(lay);
+  const svg=s('svg',{viewBox:`-3 -3 ${cols*C+6} ${rows*C+6}`,id:'areaSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C,'#D1D5DB',.5);svg.append(lay);
   if(target){const tg=s('g');target.forEach(k=>{const[x,y]=k.split(',').map(Number);tg.append(s('rect',{x:x*C,y:y*C,width:C,height:C,fill:'#F0FDF4'}))});boundary(target).forEach(e=>tg.append(s('line',{x1:e.x1*C,y1:e.y1*C,x2:e.x2*C,y2:e.y2*C,stroke:'#16A34A','stroke-width':1.2,'stroke-dasharray':'2 1.4','stroke-linecap':'round'})));svg.append(tg)}
-  const tileG=s('g');svg.append(tileG);const TX=cols*C+8,TY=6;
-  svg.append(s('rect',{x:TX-3,y:TY-3,width:20,height:30,rx:3,fill:'#F5F3FF',stroke:'#C4B5FD','stroke-width':.6}),s('rect',{x:TX+.5,y:TY,width:13,height:13,rx:1.5,fill:'#4ADE80',stroke:'#166534','stroke-width':.8,id:'trayTile',class:'pulse'}),s('text',{x:TX+7,y:TY+21,'text-anchor':'middle','font-size':4.2,fill:'#4B5563','font-weight':600},'drag me'));
-  const filled=new Map();let locked=false;const counter=h('div',{class:'counter',id:'counter'});api.controls.append(counter);
+  const tileG=s('g');svg.append(tileG);
+  const filled=new Map();let locked=false;api.controls.classList.add('tilebar');const counter=h('div',{class:'counter',id:'counter'});api.controls.append(counter);
   const updC=()=>{counter.textContent=mode==='cover'?`Tiles placed: ${filled.size}`:`Tiles placed: ${filled.size} (goal: ${N})`};updC();
   const cellAt=p=>{const x=Math.floor(p[0]/C),y=Math.floor(p[1]/C);return x>=0&&x<cols&&y>=0&&y<rows?`${x},${y}`:null};
   let warned=false;function apply(k,m){if(!k||locked)return;if(m==='fill'){if(filled.has(k))return;if(target&&!target.has(k)){if(!warned){api.hint('Oops! That square is outside the dashed outline. Keep the tiles inside!');warned=true}return}const[x,y]=k.split(',').map(Number);const r=s('rect',{x:x*C+.4,y:y*C+.4,width:C-.8,height:C-.8,rx:1,fill:'#4ADE80',stroke:'#166534','stroke-width':.6,class:'popin'});tileG.append(r);filled.set(k,r);sfx.tap()}else{if(!filled.has(k))return;filled.get(k).remove();filled.delete(k);sfx.tap()}updC();changed()}
   function changed(){if(mode==='cover'&&target&&[...target].every(k=>filled.has(k))&&!locked){locked=true;const c=centerOf(svg);confetti(c.x,c.y,25,.8);sfx.bit();say('You covered the whole shape! Now: how many square units is the area?','happy');api.ask('How many square units is the area?','Count the tiles you used.');keypad(v=>{if(v===target.size){const cc=centerOf($('#kpDisplay'));api.good(`The area is ${target.size} square units.`,cc.x,cc.y);return true}api.bad('Count the green tiles one by one. Each tile is 1 square unit.');return false},'sq. units')}}
-  let mode2=null,ghost=null,pid=null;
+  let mode2=null,pid=null;
   svg.addEventListener('pointerdown',e=>{if(run.solved||locked)return;e.preventDefault();const p=svgPt(svg,e);pid=e.pointerId;try{svg.setPointerCapture(pid)}catch(_){}
-   if(p[0]>=TX-3&&p[0]<=TX+17&&p[1]>=TY-3&&p[1]<=TY+27){mode2='ghost';ghost=s('rect',{x:p[0]-C/2,y:p[1]-C/2,width:C,height:C,rx:1,fill:'#4ADE80','fill-opacity':.8,stroke:'#166534','stroke-width':.6,'pointer-events':'none'});svg.append(ghost);sfx.tap();return}
    const k=cellAt(p);if(!k)return;mode2=filled.has(k)?'erase':'fill';warned=false;apply(k,mode2)});
-  svg.addEventListener('pointermove',e=>{if(!mode2||e.pointerId!==pid)return;e.preventDefault();const p=svgPt(svg,e);if(mode2==='ghost'){ghost.setAttribute('x',p[0]-C/2);ghost.setAttribute('y',p[1]-C/2)}else apply(cellAt(p),mode2)});
-  const end=e=>{if(!mode2)return;if(mode2==='ghost'){const p=svgPt(svg,e);ghost.remove();ghost=null;warned=false;const k=cellAt(p);if(k)apply(k,'fill')}mode2=null};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',()=>{if(ghost)ghost.remove();ghost=null;mode2=null});
-  if(mode==='cover')api.ask('Cover the shape with square tiles!','Drag tiles from the tray (or tap and slide on the squares) to fill the dashed outline. Tap a tile to remove it.');
-  else{api.ask(`Build a shape with an area of ${N} square units!`,'Drag tiles onto the grid, or tap and slide. Every tile must touch another tile along a side.');
-   const clr=h('button',{class:'btn'},'Clear');clr.onclick=()=>{if(run.solved)return;filled.forEach(r=>r.remove());filled.clear();updC()};
+  svg.addEventListener('pointermove',e=>{if(!mode2||e.pointerId!==pid)return;e.preventDefault();const p=svgPt(svg,e);apply(cellAt(p),mode2)});
+  const end=()=>{mode2=null};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  if(mode==='cover')api.ask('Cover the shape with square tiles!','Tap the squares inside the dashed outline to place tiles (or slide your finger across). Tap a tile again to remove it.');
+  else{api.ask(`Build a shape with an area of ${N} square units!`,'Tap squares on the grid to place tiles (or slide your finger). Every tile must touch another tile along a side.');
+   const clr=h('button',{class:'btn clearbtn'},'Clear');clr.onclick=()=>{if(run.solved)return;filled.forEach(r=>r.remove());filled.clear();updC()};
    const chk=h('button',{class:'btn primary',id:'checkBtn',style:'flex:1'},'Check ✓');chk.onclick=()=>{if(run.solved)return;const cs=new Set(filled.keys());const c=centerOf(chk);if(cs.size!==N)api.bad(`You have ${cs.size} tile${cs.size===1?'':'s'}. You need exactly ${N}. ${cs.size<N?'Add':'Take away'} ${Math.abs(N-cs.size)}.`);else if(!connected(cs))api.bad('Make sure every tile touches another tile along a side, so it is one shape.');else api.good(`Your shape has an area of ${N} square units, and its perimeter is ${boundary(cs).length} units.`,c.x,c.y)};api.controls.append(clr,chk)}
-  run.dbg={mode,N,target:target?[...target]:null,cell:(k)=>{const[x,y]=k.split(',').map(Number);return clientOf(svg,[x*C+C/2,y*C+C/2])},tray:()=>clientOf(svg,[TX+7,TY+6])};return}
+  run.dbg={mode,N,target:target?[...target]:null,cell:(k)=>{const[x,y]=k.split(',').map(Number);return clientOf(svg,[x*C+C/2,y*C+C/2])}};return}
  // level 3: rectangle stretch
  const cols=10,rows=7;let tP,tA,mode=pick(['P','A']);
  const fits=(w,hh)=>w>=1&&w<=cols&&hh>=1&&hh<=rows;
@@ -1365,7 +1396,7 @@ function areaRound(lvl,api){const C=10;
  let w=2,hh=2;do{w=rnd(1,6);hh=rnd(1,5)}while(2*(w+hh)===tP&&w*hh===tA);
  const svg=s('svg',{viewBox:`-8 -6 ${cols*C+14} ${rows*C+16}`,id:'rectSvg'});api.stage.append(svg);const lay=s('g');gridLines(lay,cols,rows,C,'#D1D5DB',.5);svg.append(lay);const rg=s('g');svg.append(rg);
  const hd=s('g',{id:'rectHandle'},s('circle',{r:8,fill:'transparent'}),s('circle',{r:4,fill:'#E11D48',stroke:'#fff','stroke-width':1.4,class:'pulse'}));svg.append(hd);
- const ro=h('div',{class:'readout',id:'readout'});api.controls.append(ro);
+ const ro=h('div',{class:'readout',id:'readout'});api.controls.classList.add('tilebar');api.controls.append(ro);
  function draw(){rg.innerHTML='';const y0=rows*C-hh*C;for(let x=0;x<w;x++)for(let y=0;y<hh;y++)rg.append(s('rect',{x:x*C+.4,y:y0+y*C+.4,width:C-.8,height:C-.8,rx:1,fill:'#86EFAC'}));rg.append(s('rect',{x:0,y:y0,width:w*C,height:hh*C,fill:'none',stroke:'#D97706','stroke-width':1.4}));rg.append(s('text',{x:w*C/2,y:rows*C+6.5,'text-anchor':'middle','font-size':5,'font-weight':700,fill:'#1E1B4B'},w),s('text',{x:-4,y:y0+hh*C/2+1.8,'text-anchor':'middle','font-size':5,'font-weight':700,fill:'#1E1B4B'},hh));hd.setAttribute('transform',`translate(${w*C} ${y0})`);
   ro.innerHTML='';ro.append(h('div',{class:'big'},`${w} × ${hh}`),h('div',{},'Perimeter',h('b',{},`${2*(w+hh)} units`)),h('div',{},'Area',h('b',{},`${w*hh} sq. units`)))}
  draw();let dr=null;const setFrom=p=>{const nw=Math.max(1,Math.min(cols,Math.round(p[0]/C))),nh=Math.max(1,Math.min(rows,Math.round((rows*C-p[1])/C)));if(nw!==w||nh!==hh){w=nw;hh=nh;sfx.tap();draw()}};
@@ -1557,7 +1588,7 @@ const ACTS=[
  {id:'angle',title:'Angle Lab',color:'#E11D48',sol:'Challenge',group:'ch',desc:'Bend angles and use the corner checker.',levels:['Name That Angle','Make an Angle','Angle Hunt'],tips:['Acute is smaller than a square corner. Obtuse is bigger. Right is exactly a square corner.','Drag the red dot to bend the angle!','Which kind of angle is hiding in the pink corner?'],round:angleRound},
  {id:'quad',title:'Quad Quest',color:'#2563EB',sol:'SOL 3.MG.4',desc:'Squares, rhombuses, trapezoids & more.',levels:['Best Name','All the Names','True or False?'],tips:['Little squares show right angles. Tick marks show equal sides.','A square is a rectangle AND a rhombus too!','Think like a shape scientist!'],round:quadRound},
  {id:'peri',title:'Perimeter Path',color:'#D97706',sol:'SOL 3.MG.2',desc:'Walk all the way around the shape.',levels:['Count the Units','Add the Sides','Missing Side'],tips:['Perimeter is the distance all the way AROUND a shape.','Add up every side length.','Use the total to find the missing side!'],round:periRound},
- {id:'area',title:'Area Builder',color:'#16A34A',sol:'SOL 3.MG.2',desc:'Fill shapes with square tiles.',levels:['Count the Squares','Build with Tiles','Rectangle Stretch'],tips:['Area is how many squares cover the inside of a shape.','Drag green tiles onto the grid!','Same perimeter can have different areas. Stretch and see!'],round:areaRound},
+ {id:'area',title:'Area Builder',color:'#16A34A',sol:'SOL 3.MG.2',desc:'Fill shapes with square tiles.',levels:['Count the Squares','Missing Squares','Build with Tiles','Rectangle Stretch'],tips:['Area is how many squares cover a shape. Rows × squares in a row!','Some squares are missing! Whole rectangle, then take away.','Tap the grid to place green tiles!','Same perimeter can have different areas. Stretch and see!'],round:areaRound},
  {id:'lines',title:'Line Lab',color:'#0891B2',sol:'Challenge',group:'ch',desc:'Points, lines, line segments and rays.',levels:['What Is It?','Name It','Draw It'],tips:['Dots are endpoints (it stops). Arrows mean it keeps going forever!','Ray names start with the endpoint letter. Lines and segments can go either way.','Pick the right tool, then connect the points!'],round:linesRound},
  {id:'cross',title:'Crossing Lines',color:'#4F46E5',sol:'Challenge',group:'ch',desc:'Parallel, perpendicular and intersecting lines.',levels:['Which Kind?','Turn the Line','Lines & Angles'],tips:['Parallel lines never meet. Perpendicular lines meet at a right angle.','Drag to turn the red line!','An angle is two rays that share an endpoint, the vertex.'],round:crossRound},
  {id:'sym',title:'Mirror Magic',color:'#DB2777',sol:'Challenge',group:'ch',desc:'Find lines of symmetry by folding.',levels:['Fold Test','Find All Folds','How Many?'],tips:['A line of symmetry folds a shape into two matching halves.','Tap every fold line that works!','Count all the ways the shape can fold in half.'],round:symRound},
@@ -1569,13 +1600,13 @@ const ACTS=[
 function showHome(){closeModal();keyHandler=null;run=null;main.innerHTML='';main.scrollTop=0;
  const ts=totalStars(),nb=Object.keys(st.badges).length;
  const hero=h('section',{class:'hero'},frag('<svg class="hero-deco" viewBox="0 0 220 180"><polygon points="40,20 80,90 0,90" fill="#fff"/><rect x="110" y="10" width="60" height="60" fill="#fff" transform="rotate(15 140 40)"/><circle cx="170" cy="130" r="35" fill="#fff"/><polygon points="70,110 110,110 125,145 90,170 55,145" fill="#fff"/></svg>'),h('div',{class:'hero-main'},h('h1',{},'Hi there!'),h('p',{},`We're the ${curSet().name}. Let's play with shapes!`),h('div',{class:'statrow'},h('span',{class:'pill'},`★ ${ts} / ${ACTS.length*9} stars`),h('span',{class:'pill'},`${nb} / ${BADGES.length} badges`),h('span',{class:'pill'},`Best streak: ${st.bestStreak}`)),h('div',{class:'crew',id:'heroCrew'},[...curSet().members,curSet().secret].map(id=>{const lk=BUDDY[id].secret&&!secretOpen(st.buddySet);return h('div',{class:'crewmate'+(lk?' locked':'')},frag(buddySVG(id,'bob',lk)),h('span',{},lk?'???':BUDDY[id].name))}),h('button',{class:'btn swap',id:'swapSet',onclick:()=>{sfx.tap();st.buddySet=st.buddySet==='puff'?'feel':'puff';save();applySetTheme();showHome()}},`Switch to ${BSETS[st.buddySet==='puff'?'feel':'puff'].name} ↻`))));
- const card=a=>{const done=[0,1,2].reduce((t,l)=>t+levelStars(a.id,l),0);const next=[0,1,2].find(l=>!levelStars(a.id,l));
-  return h('button',{class:'card',style:`--c:${a.color}`,'data-act':a.id,onclick:()=>{sfx.tap();showActivity(a.id,next==null?0:next)}},frag(ACTICON[a.id].replace('<svg','<svg class="icon"')),h('div',{class:'cardguide'},frag(buddySVG(curSet().guides[a.id]))),h('h3',{},a.title),h('p',{},a.desc),h('div',{class:'lvrow'},a.levels.map((n,i)=>h('span',{class:'lvchip'},`${i+1} `,h('span',{class:'st'},starStr(levelStars(a.id,i))))),h('span',{class:'tag'},a.sol)),h('div',{class:'bar'},h('i',{style:`width:${Math.round(done/9*100)}%`})))};
+ const card=a=>{const done=LVS(a.id).reduce((t,l)=>t+levelStars(a.id,l),0);const next=LVS(a.id).find(l=>!levelStars(a.id,l));
+  return h('button',{class:'card',style:`--c:${a.color}`,'data-act':a.id,onclick:()=>{sfx.tap();showActivity(a.id,next==null?0:next)}},frag(ACTICON[a.id].replace('<svg','<svg class="icon"')),h('div',{class:'cardguide'},frag(buddySVG(curSet().guides[a.id]))),h('h3',{},a.title),h('p',{},a.desc),h('div',{class:'lvrow'},a.levels.map((n,i)=>h('span',{class:'lvchip'},`${i+1} `,h('span',{class:'st'},starStr(levelStars(a.id,i))))),h('span',{class:'tag'},a.sol)),h('div',{class:'bar'},h('i',{style:`width:${Math.round(done/(a.levels.length*3)*100)}%`})))};
  const learnedN=LESSONS.filter(L=>st.learned&&st.learned[L.id]).length;
  const learnBanner=h('button',{class:'learnbanner',id:'learnBanner',onclick:()=>{if(sfx&&sfx.tap)sfx.tap();showLearn(learnedN&&learnedN<LESSONS.length?LESSONS.find(L=>!st.learned[L.id]).id:LESSONS[0].id)}},frag(namesMini().replace('<svg','<svg class="mini"')),h('div',{},h('h2',{},'Learn the shapes'),h('p',{},learnedN?`${learnedN} of ${LESSONS.length} lessons done. Polygon names, sides, quadrilaterals and more.`:'Polygon names, sides, quadrilaterals and more — short lessons with pictures.')),h('span',{class:'gochip'},"Let's go ▶"));
  main.append(h('div',{class:'home'},hero,learnBanner,h('h2',{class:'sec'},'Shape Basics',h('small',{},'Grade 3 shapes, perimeter & area')),h('div',{class:'cards',id:'basicCards'},ACTS.filter(a=>a.group!=='ch').map(card)),h('h2',{class:'sec'},'Challenge Zone',h('small',{},'Bonus topics for super shape explorers')),h('div',{class:'cards',id:'challengeCards'},ACTS.filter(a=>a.group==='ch').map(card))))}
 function showProgress(){closeModal();keyHandler=null;run=null;main.innerHTML='';main.scrollTop=0;
- const topics=h('div',{class:'box'},h('h2',{},'Topic progress'),[...ACTS.filter(a=>a.group!=='ch'),...ACTS.filter(a=>a.group==='ch')].map(a=>{const d=[0,1,2].reduce((t,l)=>t+levelStars(a.id,l),0);return h('div',{class:'topic',style:`--c:${a.color}`},frag(ACTICON[a.id]),h('div',{class:'nm'},a.title),h('div',{class:'lv'},a.levels.map((n,i)=>`${n} ${starStr(levelStars(a.id,i))}`).join('  ·  ')),h('div',{class:'bar',style:'grid-column:2/-1'},h('i',{style:`width:${Math.round(d/9*100)}%`})))}));
+ const topics=h('div',{class:'box'},h('h2',{},'Topic progress'),[...ACTS.filter(a=>a.group!=='ch'),...ACTS.filter(a=>a.group==='ch')].map(a=>{const d=LVS(a.id).reduce((t,l)=>t+levelStars(a.id,l),0);return h('div',{class:'topic',style:`--c:${a.color}`},frag(ACTICON[a.id]),h('div',{class:'nm'},a.title),h('div',{class:'lv'},a.levels.map((n,i)=>`${n} ${starStr(levelStars(a.id,i))}`).join('  ·  ')),h('div',{class:'bar',style:'grid-column:2/-1'},h('i',{style:`width:${Math.round(d/(a.levels.length*3)*100)}%`})))}));
  const badges=h('div',{class:'box'},h('h2',{},`Badges (${Object.keys(st.badges).length} of ${BADGES.length})`),h('div',{class:'badges'},BADGES.map(b=>h('div',{class:'badge'+(st.badges[b.id]?'':' locked')},badgeIcon(b,64),h('b',{},b.name),b.desc))));
  const crewBox=h('div',{class:'box',id:'crewBox'},h('h2',{},'My Buddy Crew'),h('p',{class:'muted',style:'margin:0 0 8px'},'Pick which buddies play with you. Secret buddies hide until you find them!'),Object.keys(BSETS).map(k=>{const S=BSETS[k],on=st.buddySet===k;return h('div',{class:'crewset'+(on?' on':'')},h('div',{class:'crewhead'},h('h3',{},S.name),h('small',{},S.blurb),h('button',{class:'btn'+(on?' go':''),'data-set':k,onclick:()=>{sfx.tap();st.buddySet=k;save();applySetTheme();showProgress()}},on?'Playing ✓':'Play with these')),h('div',{class:'crewgrid'},[...S.members,S.secret].map(id=>{const lk=BUDDY[id].secret&&!secretOpen(k);const c=BUDDY[id];return h('div',{class:'crewcard'+(lk?' locked':'')},frag(buddySVG(id,'bob',lk)),h('b',{},lk?'???':c.name),h('small',{},lk?'Secret! Earn Shape Master, or keep playing… someone may peek out!':`${c.feel}: ${c.role}`))})))}));
  const grown=h('div',{class:'box'},h('h2',{},'For grown-ups'),h('div',{class:'grown'},h('p',{style:'margin:0;flex:1;min-width:240px;color:#4B5563;font-size:16px'},'Progress is saved on this device only. Shape Basics follow Virginia 2023 Grade 3 Math SOLs: 3.MG.2 (area & perimeter) and 3.MG.4 (polygons). The Challenge Zone goes further: angles, points, lines, segments & rays, parallel & perpendicular lines, symmetry, slides/flips/turns, congruence, and composite figures. A trapezoid here has exactly one pair of parallel sides.'),h('button',{class:'btn',id:'resetBtn',onclick:resetFlow},'Reset all progress')));
