@@ -76,7 +76,12 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
 .controls .qopts .btn{justify-content:flex-start;text-align:left;overflow-wrap:normal;word-break:normal;hyphens:none}
 .controls .qopts.row{display:flex;flex-wrap:wrap;gap:10px}
 .controls .qopts.row .btn{flex:1 1 0;min-width:64px;justify-content:center;text-align:center}
-@media (max-width:560px){.controls .qopts{grid-template-columns:1fr}.controls .qopts.row{display:flex}}
+/* answer list always spans the full controls width (was stuck in one half-width grid cell on .act.playfull) */
+.controls>.qopts,.act.playfull .controls>.qopts{grid-column:1/-1;width:100%;box-sizing:border-box}
+@media (max-width:560px){.controls .qopts{grid-template-columns:1fr;gap:8px}.controls .qopts.row{display:flex}
+ .controls .qopts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .controls .qopts.two .btn:last-child:nth-child(odd){grid-column:1/-1}
+ .controls .qopts .btn{min-height:52px;padding:8px 12px;font-size:clamp(16px,4.6vw,19px)}}
 .btn{padding:10px 18px;border-radius:16px;background:#fff;border:3px solid #C4B5FD;font-weight:600;font-size:21px;min-height:58px;box-shadow:0 4px 0 #C4B5FD;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .08s}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #C4B5FD}
 .btn svg{width:40px;height:30px}
@@ -948,7 +953,7 @@ function keypad(onEnter,unit=''){let val='';const disp=h('div',{class:'kp-displa
 /* tighten a question picture's viewBox to what is drawn, so small shapes fill the stage */
 function fitSvgToContent(sv){try{if(!sv.isConnected||sv.dataset.fitted)return;const vb=sv.viewBox&&sv.viewBox.baseVal;if(!vb||!vb.width)return;const b=sv.getBBox();if(!b.width||!b.height)return;const pad=Math.max(b.width,b.height)*.09;let x=b.x-pad,y=b.y-pad,x2=b.x+b.width+pad,y2=b.y+b.height+pad;let w=x2-x,hh=y2-y;const minW=vb.width/1.6,minH=vb.height/1.6;if(w<minW){x-=(minW-w)/2;w=minW}if(hh<minH){y-=(minH-hh)/2;hh=minH}if(Math.abs(w-vb.width)<1&&Math.abs(hh-vb.height)<1&&Math.abs(x-vb.x)<1&&Math.abs(y-vb.y)<1)return;sv.setAttribute('viewBox',`${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${hh.toFixed(2)}`);sv.dataset.fitted='1'}catch(_){}}
 const compactOpt=s=>{const t=String(s==null?'':s).replace(/<[^>]+>/g,' ').replace(/&nbsp;?/gi,' ').replace(/&[a-z]+;/gi,' ').replace(/\s+/g,' ').trim();if(!t)return false;if(/^[€£$]?[\d.,:\-/%]+$/.test(t))return true;const raw=t.replace(/\s+/g,'');if(/^\d+[×x÷+\-]\d+$/.test(raw)&&raw.length<=8)return true;return !/\s/.test(t)&&t.length<=8};
-function choiceButtons(opts,onPick){const wrap=h('div',{class:'qopts'+(opts.every(o=>compactOpt(o.label))?' row':'')});const bs=opts.map(o=>{const b=h('button',{class:'btn','data-v':String(o.v)},o.icon?frag(o.icon):null,o.label);b.onclick=()=>{if(run.solved||b.disabled)return;onPick(o.v,b)};wrap.append(b);return b});run.controls.append(wrap);return bs}
+function choiceButtons(opts,onPick){const isRow=opts.every(o=>compactOpt(o.label)),maxLen=Math.max(...opts.map(o=>String(o.label).replace(/<[^>]+>/g,'').length)),wrap=h('div',{class:'qopts'+(isRow?' row':(opts.length>2&&maxLen<=(opts.some(o=>o.icon)?9:13)?' two':''))});const bs=opts.map(o=>{const b=h('button',{class:'btn','data-v':String(o.v)},o.icon?frag(o.icon):null,o.label);b.onclick=()=>{if(run.solved||b.disabled)return;onPick(o.v,b)};wrap.append(b);return b});run.controls.append(wrap);return bs}
 /* ======================= ACTIVITY 1: SHAPE SORTER ======================= */
 function sortRound(lvl,api){let bins,items=[],extra='';
  if(lvl===0){api.ask('Polygon or not?','Drag each shape into the correct bin. A polygon is CLOSED and has only STRAIGHT sides.');
