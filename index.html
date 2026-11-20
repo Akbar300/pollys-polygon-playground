@@ -757,10 +757,10 @@ const BUDDY={
 const BSETS={
  feel:{name:'Feeling Friends',blurb:'Six fuzzy friends, one big feeling each!',members:['sunny','drizzle','scout','pip','lovey','blaze'],secret:'brave',
   roles:{cheer:'sunny',comfort:'drizzle',hint:'scout',tricky:'pip',streak:'blaze',done:'lovey'},
-  guides:{sort:'sunny',tap:'scout',quad:'lovey',peri:'blaze',area:'drizzle',angle:'pip',lines:'scout',cross:'blaze',sym:'lovey',moves:'sunny',blue:'drizzle'}},
+  guides:{sort:'sunny',tap:'scout',quad:'lovey',combine:'pip',peri:'blaze',area:'drizzle',angle:'pip',lines:'scout',cross:'blaze',sym:'lovey',moves:'sunny',blue:'drizzle'}},
  puff:{name:'Puffball Pals',blurb:'Six round, fluffy puffballs!',members:['mochi','nimbus','sparky','tango','sprout','biscuit'],secret:'cosmo',
   roles:{cheer:'sparky',comfort:'nimbus',hint:'sprout',tricky:'biscuit',streak:'tango',done:'mochi'},
-  guides:{sort:'sparky',tap:'sprout',quad:'mochi',peri:'tango',area:'nimbus',angle:'biscuit',lines:'sprout',cross:'tango',sym:'mochi',moves:'sparky',blue:'nimbus'}}
+  guides:{sort:'sparky',tap:'sprout',quad:'mochi',combine:'biscuit',peri:'tango',area:'nimbus',angle:'biscuit',lines:'sprout',cross:'tango',sym:'mochi',moves:'sparky',blue:'nimbus'}}
 };
 const curSet=()=>BSETS[st.buddySet]||BSETS.feel;
 const setOf=id=>Object.keys(BSETS).find(k=>BSETS[k].members.includes(id)||BSETS[k].secret===id);
@@ -775,7 +775,7 @@ function applySetTheme(){document.body.classList.toggle('set-puff',st.buddySet==
 function revealSecret(k,why){if(secretOpen(k))return false;st.secrets[k]=Date.now();save();const id=BSETS[k].secret,c=BUDDY[id];try{sfx.win();bigConfetti()}catch(e){}
  const bg=h('div',{class:'modal-bg reveal-bg'},h('div',{class:'modal reveal',id:'revealModal'},h('div',{class:'sparkle-ring'},frag(buddySVG(id,'revealing'))),h('h2',{},'A secret buddy appeared!'),h('p',{},h('b',{},c.name),` (${c.feel}) ${why||'came out to cheer for you!'}`),h('p',{class:'muted'},`${c.name} is now in your Trophy Room.`),h('div',{class:'mbtns'},h('button',{class:'btn go',id:'revealOk',onclick:()=>{bg.remove();if(document.querySelector('.trophyhead'))showProgress()}},'Yay! ▶'))));document.body.append(bg);return true}
 /* ---------- badges ---------- */
-const ACT_IDS=['sort','tap','quad','peri','area','angle','lines','cross','sym','moves','blue'];
+const ACT_IDS=['sort','tap','quad','combine','peri','area','angle','lines','cross','sym','moves','blue'];
 const CHALLENGE_IDS=['angle','lines','cross','sym','moves','blue'];
 const levelStars=(id,l)=>(st.prog[id]||[0,0,0])[l]||0;
 const LVS=id=>{const a=typeof ACTS!=='undefined'&&ACTS.find(x=>x.id===id);return a?a.levels.map((_,i)=>i):[0,1,2]};
@@ -787,6 +787,7 @@ const BADGES=[
  {id:'b_tap',name:'Vertex Detective',desc:'Finish all 3 Tap Detective levels',g:'hex',c:'#0D9488',test:()=>actDone('tap')},
  {id:'b_angle',name:'Angle Ace',desc:'Finish all 3 Angle Lab levels',g:'angle',c:'#E11D48',test:()=>actDone('angle')},
  {id:'b_quad',name:'Quad Champion',desc:'Finish all 3 Quad Quest levels',g:'quad',c:'#2563EB',test:()=>actDone('quad')},
+ {id:'b_combine',name:'Combo Builder',desc:'Finish all 3 Combine & Split levels',g:'quad',c:'#C026D3',test:()=>actDone('combine')},
  {id:'b_peri',name:'Perimeter Pro',desc:'Finish all 3 Perimeter Path levels',g:'ruler',c:'#D97706',test:()=>actDone('peri')},
  {id:'b_area',name:'Area Architect',desc:'Finish all 3 Area Builder levels',g:'grid',c:'#16A34A',test:()=>actDone('area')},
  {id:'b_lines',name:'Line Leader',desc:'Finish all 3 Line Lab levels',g:'ray',c:'#0891B2',test:()=>actDone('lines')},
@@ -804,7 +805,7 @@ const BADGES=[
  {id:'stars60',name:'Superstar',desc:'Collect 60 stars',g:'star3',c:'#BE185D',test:()=>totalStars()>=60},
  {id:'p1000',name:'Point Champion',desc:'Earn 1,000 points',g:'1000',c:'#1D4ED8',test:()=>st.points>=1000},
  {id:'b_learn',name:'Shape Scholar',desc:'Finish every Learn lesson',g:'star',c:'#7C3AED',test:()=>LESSONS.every(L=>st.learned&&st.learned[L.id])},
- {id:'master',name:'Shape Master',desc:'Earn all 11 topic badges',g:'crown',c:'#6D28D9',test:()=>ACT_IDS.every(actDone)}
+ {id:'master',name:'Shape Master',desc:'Earn all 12 topic badges',g:'crown',c:'#6D28D9',test:()=>ACT_IDS.every(actDone)}
 ];
 const GLYPH={
  star:'<polygon points="0,-11 3.2,-3.5 11,-3.4 4.8,1.6 7,9.5 0,5 -7,9.5 -4.8,1.6 -11,-3.4 -3.2,-3.5" fill="#fff"/>',
@@ -1222,23 +1223,43 @@ function reflectPt(p,c,a){const d=[Math.cos(a),Math.sin(a)],v=sub(p,c),t=v[0]*d[
 const isAxis=(P,c,a)=>P.every(p=>{const r=reflectPt(p,c,a);return P.some(q=>dist(q,r)<.8)});
 function symInfo(P){const c=areaCentroid(P),n=P.length,raw=[];P.forEach((v,i)=>{raw.push(Math.atan2(v[1]-c[1],v[0]-c[0]));const q=P[(i+1)%n];raw.push(Math.atan2((v[1]+q[1])/2-c[1],(v[0]+q[0])/2-c[0]))});const cands=[];raw.forEach(a=>{a=((a%Math.PI)+Math.PI)%Math.PI;if(!cands.some(b=>{const d=Math.abs(a-b.a);return Math.min(d,Math.PI-d)<.02}))cands.push({a,ok:isAxis(P,c,a)})});return{c,cands,axes:cands.filter(x=>x.ok)}}
 const SYMKEYS=['square','rectangle','rhombus','parallelogram','equilateral','isosceles','scalene','isoTrap','kite','pentagon','hexagon','octagon','house','oneRight','rightTrapezoid'];
-function axisLine(c,a,len=60,attrs={}){const d=[Math.cos(a),Math.sin(a)];return s('line',Object.assign({x1:c[0]-d[0]*len,y1:c[1]-d[1]*len,x2:c[0]+d[0]*len,y2:c[1]+d[1]*len,stroke:'#DB2777','stroke-width':1.6,'stroke-dasharray':'4 3','stroke-linecap':'round'},attrs))}
+function axisLine(c,a,len=60,attrs={}){const d=[Math.cos(a),Math.sin(a)];const lim=v=>{let L=len;for(let i=0;i<2;i++)if(Math.abs(v[i])>1e-9)L=Math.min(L,((v[i]>0?62:-62)-c[i])/v[i]);return Math.max(L,0)};const L1=lim(d),L2=lim([-d[0],-d[1]]);return s('line',Object.assign({x1:c[0]-d[0]*L2,y1:c[1]-d[1]*L2,x2:c[0]+d[0]*L1,y2:c[1]+d[1]*L1,stroke:'#DB2777','stroke-width':1.6,'stroke-dasharray':'4 3','stroke-linecap':'round'},attrs))}
 function reflectedOutline(P,c,a){return s('polygon',{points:P.map(p=>reflectPt(p,c,a).map(v=>v.toFixed(2)).join(',')).join(' '),fill:'none',stroke:'#F97316','stroke-width':1.8,'stroke-dasharray':'3 2',class:'popin'})}
+function clipHalf(P,c,a){const nx=-Math.sin(a),ny=Math.cos(a);const d=p=>(p[0]-c[0])*nx+(p[1]-c[1])*ny;const out=[];for(let i=0;i<P.length;i++){const A=P[i],B=P[(i+1)%P.length],da=d(A),db=d(B);if(da>=0)out.push(A);if((da>=0)!==(db>=0)){const k=da/(da-db);out.push([A[0]+(B[0]-A[0])*k,A[1]+(B[1]-A[1])*k])}}return out}
+/* Fold animation: one half of the shape flips over the fold line, holds, then folds back. */
+function foldPlay(svg,P,c,a,ok,done){
+ if(svg._fold)svg._fold.cancel();
+ const H=clipHalf(P,c,a);if(H.length<3){if(done)done();return}
+ const deg=a/D2R,ease=u=>u*u*(3-2*u);
+ const g=s('g',{});g.append(s('polygon',{points:H.map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join(' '),fill:'#FB923C','fill-opacity':.85,stroke:'#EA580C','stroke-width':1.4,'stroke-linejoin':'round'}));
+ const fl=axisLine(c,a,70,{'stroke-dasharray':'none','stroke-width':2.2});
+ const lab=s('text',{x:0,y:-54,'text-anchor':'middle','font-size':9,'font-weight':800,fill:ok?'#15803D':'#B91C1C',stroke:'#fff','stroke-width':3,'paint-order':'stroke'});lab.textContent=ok?'The halves match!':'It sticks out!';
+ svg.append(fl,g);let raf=0,dead=false,labShown=false;const t0=performance.now();
+ const ctl={cancel(){end()}};
+ function end(){dead=true;cancelAnimationFrame(raf);g.remove();fl.remove();lab.remove();if(svg._fold===ctl)svg._fold=null}
+ svg._fold=ctl;
+ function frame(now){if(dead)return;if(!svg.isConnected){end();return}
+  const e=now-t0;let u;if(e<1100)u=ease(e/1100);else if(e<2700)u=1;else if(e<3700)u=1-ease((e-2700)/1000);else{end();if(done)done();return}
+  g.setAttribute('transform',`translate(${c[0]} ${c[1]}) rotate(${deg}) scale(1 ${Math.cos(Math.PI*u).toFixed(4)}) rotate(${-deg}) translate(${-c[0]} ${-c[1]})`);
+  if(u===1&&!labShown){labShown=true;svg.append(lab)}else if(u<1&&labShown){labShown=false;lab.remove()}
+  raf=requestAnimationFrame(frame)}
+ raf=requestAnimationFrame(frame)}
 function symRound(lvl,api){const svg=s('svg',{viewBox:'-66 -66 132 132',id:'symSvg'});api.stage.append(svg);
  if(lvl===0){const yes=Math.random()<.5;let sh,S,a;for(let k=0;k<200;k++){sh=poly(pick(SYMKEYS));S=symInfo(sh.pts);if(yes&&S.axes.length){a=pick(S.axes).a;break}if(!yes){const fakes=S.cands.filter(x=>!x.ok);if(fakes.length&&Math.random()<.7){a=pick(fakes).a;break}for(let t=0;t<50;t++){const r=rf(0,Math.PI);if(S.axes.every(x=>{const d=Math.abs(r-x.a);return Math.min(d,Math.PI-d)>.21})&&!isAxis(sh.pts,S.c,r)){a=r;break}}if(a!=null)break}}
   svg.append(drawShape(sh,pick(FILLS),1.6),axisLine(S.c,a,64));const ok=isAxis(sh.pts,S.c,a);
   api.ask('Is the dashed line a line of symmetry?','Imagine folding the shape on the dashed line. Would the two halves match exactly?');
-  choiceButtons([{v:'yes',label:'Yes, it matches!'},{v:'no',label:'No, it does not'}],(v,b)=>{svg.append(reflectedOutline(sh.pts,S.c,a));if((v==='yes')===ok){b.classList.add('good');const c=centerOf(b);api.good(ok?'Fold it there and both halves match exactly. The orange fold outline lands right on the shape!':'Fold it there and the halves do NOT match. See how the orange fold outline sticks out?',c.x,c.y)}else{b.classList.add('bad');b.disabled=true;api.bad(ok?'Look at the orange outline: that is where the folded half lands. It matches perfectly!':'Look at the orange outline: that is where the folded half lands. It does not match the shape.')}});run.dbg={answer:ok?'yes':'no'};return}
+  choiceButtons([{v:'yes',label:'Yes, it matches!'},{v:'no',label:'No, it does not'}],(v,b)=>{foldPlay(svg,sh.pts,S.c,a,ok);if((v==='yes')===ok){b.classList.add('good');const c=centerOf(b);api.good(ok?'Fold it there and both halves match exactly. The orange half folds over and lands exactly on the other half!':'Fold it there and the halves do NOT match. See how the orange half sticks out past the shape?',c.x,c.y)}else{b.classList.add('bad');b.disabled=true;api.bad(ok?'Watch the orange half fold over: it lands exactly on the other half. It matches!':'Watch the orange half fold over: it sticks out, so the halves do not match.')}});{const fb=h('button',{class:'btn wide',id:'foldBtn'},'Fold it ▶');fb.onclick=()=>{sfx.tap();foldPlay(svg,sh.pts,S.c,a,ok)};api.controls.append(fb)}run.dbg={answer:ok?'yes':'no'};return}
  if(lvl===1){let sh,S;for(let k=0;k<100;k++){sh=poly(pick(['square','rectangle','rhombus','equilateral','isosceles','isoTrap','kite','house','pentagon','hexagon','rectangle','rhombus']));S=symInfo(sh.pts);if(S.axes.length)break}
-  const show=shuffle([...S.axes,...shuffle(S.cands.filter(x=>!x.ok)).slice(0,3)]);svg.append(drawShape(sh,pick(FILLS),1.6));const lines=s('g');svg.append(lines);const sel=new Set();
+  const show=shuffle([...S.axes,...shuffle(S.cands.filter(x=>!x.ok)).slice(0,3)]);svg.append(drawShape(sh,pick(FILLS),1.6));const lines=s('g');svg.append(lines);const sel=new Set();let last=-1;
   const els=show.map((x,k)=>{const d=[Math.cos(x.a),Math.sin(x.a)];const g=s('g');const lim=v=>{let L=58;for(let i=0;i<2;i++)if(Math.abs(v[i])>1e-9)L=Math.min(L,((v[i]>0?60:-60)-S.c[i])/v[i]);return L};const L1=lim(d),L2=lim([-d[0],-d[1]]);const e1=[S.c[0]+d[0]*L1,S.c[1]+d[1]*L1],e2=[S.c[0]-d[0]*L2,S.c[1]-d[1]*L2];const ln=s('line',{x1:e2[0],y1:e2[1],x2:e1[0],y2:e1[1],stroke:'#6B7280','stroke-width':1.2,'stroke-dasharray':'4 3'});const k1=s('circle',{cx:e1[0],cy:e1[1],r:4.2,fill:'#fff',stroke:'#6B7280','stroke-width':1.2}),k2=s('circle',{cx:e2[0],cy:e2[1],r:4.2,fill:'#fff',stroke:'#6B7280','stroke-width':1.2});g.append(ln,k1,k2);lines.append(g);return{x,ln,k1,k2,e1,e2}});
   const paint=()=>els.forEach((o,k)=>{const on=sel.has(k);o.ln.setAttribute('stroke',on?'#DB2777':'#6B7280');o.ln.setAttribute('stroke-width',on?2.6:1.2);o.ln.setAttribute('stroke-dasharray',on?'none':'4 3');[o.k1,o.k2].forEach(c=>{c.setAttribute('fill',on?'#DB2777':'#fff');c.setAttribute('stroke',on?'#DB2777':'#6B7280')})});
-  svg.addEventListener('pointerdown',e=>{if(run.solved)return;e.preventDefault();const p=svgPt(svg,e);let bi=-1,bd=9;els.forEach((o,k)=>{const d=Math.min(segDist(p,o.e1,o.e2),dist(p,o.e1)-2,dist(p,o.e2)-2);if(d<bd){bd=d;bi=k}});if(bi<0){api.hint('Tap a dashed line (or the dot at its end).');return}if(sel.has(bi))sel.delete(bi);else sel.add(bi);sfx.tap();paint()});
+  svg.addEventListener('pointerdown',e=>{if(run.solved)return;e.preventDefault();const p=svgPt(svg,e);let bi=-1,bd=9;els.forEach((o,k)=>{const d=Math.min(segDist(p,o.e1,o.e2),dist(p,o.e1)-2,dist(p,o.e2)-2);if(d<bd){bd=d;bi=k}});if(bi<0){api.hint('Tap a dashed line (or the dot at its end).');return}if(sel.has(bi))sel.delete(bi);else sel.add(bi);last=bi;sfx.tap();paint()});
   api.ask('Tap ALL the lines of symmetry!','Some dashed lines are fold lines and some are not. Then press Check.');
+  const fb=h('button',{class:'btn wide',id:'foldBtn'},'Fold the line I tapped ▶');fb.onclick=()=>{if(last<0){api.hint('Tap a dashed line first, then press Fold.');return}const x=els[last].x;sfx.tap();foldPlay(svg,sh.pts,S.c,x.a,!!x.ok)};api.controls.append(fb);
   const chk=h('button',{class:'btn primary wide',id:'checkBtn'},'Check ✓');api.controls.append(chk);
   chk.onclick=()=>{if(run.solved)return;const wrong=[...sel].filter(k=>!els[k].x.ok),miss=els.map((o,k)=>k).filter(k=>els[k].x.ok&&!sel.has(k));const c=centerOf(chk);
    if(!wrong.length&&!miss.length){api.good(`This shape has ${S.axes.length} line${S.axes.length>1?'s':''} of symmetry.`,c.x,c.y);return}
-   if(wrong.length){svg.querySelectorAll('.popin').forEach(x=>x.remove());svg.append(reflectedOutline(sh.pts,S.c,els[wrong[0]].x.a));api.bad('One of your lines does not work. The orange outline shows the fold: the halves do not match.')}else api.bad(`Almost! ${miss.length} more fold line${miss.length>1?'s work':' works'}. Try each one in your mind.`)};
+   if(wrong.length){foldPlay(svg,sh.pts,S.c,els[wrong[0]].x.a,false);api.bad('One of your lines does not work. Watch the orange half fold: it sticks out, so the halves do not match.')}else api.bad(`Almost! ${miss.length} more fold line${miss.length>1?'s work':' works'}. Try each one in your mind.`)};
   run.dbg={okPts:els.filter(o=>o.x.ok).map(o=>clientOf(svg,o.e1))};return}
  const circle=Math.random()<.12;let ans,sh,S;
  if(circle){sh=nonpoly('circle');ans='inf'}else{sh=poly(pick(SYMKEYS));S=symInfo(sh.pts);ans=S.axes.length}
@@ -1590,11 +1611,123 @@ function showLearn(startId){
   draw();
 }
 
+
+Object.assign(ACTICON,{combine:'<svg viewBox="0 0 72 72"><polygon points="6,34 34,34 6,62" fill="#FBCFE8" stroke="#1E1B4B" stroke-width="3" stroke-linejoin="round"/><polygon points="38,66 38,38 66,38" fill="#BFDBFE" stroke="#1E1B4B" stroke-width="3" stroke-linejoin="round"/><path d="M12 24 L36 8" stroke="#C026D3" stroke-width="3.5" stroke-dasharray="6 4" stroke-linecap="round" fill="none"/><polygon points="40,6 54,12 44,22" fill="#FDE68A" stroke="#1E1B4B" stroke-width="3" stroke-linejoin="round"/></svg>'});
+/* ======================= Combine & Split (SOL 3.MG.4 f, g) ======================= */
+const CS_NAME={3:'triangle',4:'quadrilateral',5:'pentagon',6:'hexagon'};
+const CS_PLURAL={triangle:'triangles',quadrilateral:'quadrilaterals',pentagon:'pentagons',hexagon:'hexagons'};
+const CS_PAL=['#FBCFE8','#BFDBFE','#FDE68A','#A7F3D0'];
+/* Every scene: parts tile the outer shape exactly (no gaps, no overlaps). */
+const CSCENES=[
+ {parts:[[[40,60],[160,60],[40,140]],[[160,60],[160,140],[40,140]]],outer:[[40,60],[160,60],[160,140],[40,140]],cuts:[[[40,140],[160,60]]]},
+ {parts:[[[60,100],[140,100],[100,50]],[[60,100],[140,100],[100,150]]],outer:[[100,50],[140,100],[100,150],[60,100]],cuts:[[[60,100],[140,100]]]},
+ {parts:[[[60,90],[140,90],[140,160],[60,160]],[[60,90],[140,90],[100,50]]],outer:[[60,160],[140,160],[140,90],[100,50],[60,90]],cuts:[[[60,90],[140,90]]]},
+ {parts:[[[60,50],[110,50],[110,160],[60,160]],[[110,110],[170,110],[170,160],[110,160]]],outer:[[60,50],[110,50],[110,110],[170,110],[170,160],[60,160]],cuts:[[[110,110],[110,160]]]},
+ {parts:[[[60,160],[160,160],[110,110]],[[160,160],[160,60],[110,110]]],outer:[[60,160],[160,160],[160,60]],cuts:[[[160,160],[110,110]]]},
+ {parts:[[[80,80],[140,80],[140,150],[80,150]],[[140,80],[180,115],[140,150]],[[80,80],[40,115],[80,150]]],outer:[[80,80],[140,80],[180,115],[140,150],[80,150],[40,115]],cuts:[[[140,80],[140,150]],[[80,80],[80,150]]]},
+ {parts:[[[60,60],[140,60],[140,140]],[[60,60],[140,140],[60,140]]],outer:[[60,60],[140,60],[140,140],[60,140]],cuts:[[[60,60],[140,140]]]},
+ {parts:[[[60,60],[110,60],[110,160],[60,160]],[[110,60],[160,60],[160,160],[110,160]]],outer:[[60,60],[160,60],[160,160],[60,160]],cuts:[[[110,60],[110,160]]]},
+ {parts:[[[130,60],[160,60],[160,90]],[[60,60],[130,60],[160,90],[160,160],[60,160]]],outer:[[60,60],[160,60],[160,160],[60,160]],cuts:[[[130,60],[160,90]]]},
+ {parts:[[[60,150],[110,150],[110,60]],[[110,150],[160,150],[110,60]]],outer:[[60,150],[160,150],[110,60]],cuts:[[[110,60],[110,150]]]},
+ {parts:[[[87.78,100],[132.22,100],[110,60]],[[60,150],[160,150],[132.22,100],[87.78,100]]],outer:[[60,150],[160,150],[110,60]],cuts:[[[87.78,100],[132.22,100]]]},
+ {parts:[[[60,60],[100,60],[100,160],[60,160]],[[100,60],[140,60],[140,160],[100,160]],[[140,60],[180,60],[180,160],[140,160]]],outer:[[60,60],[180,60],[180,160],[60,160]],cuts:[[[100,60],[100,160]],[[140,60],[140,160]]]}
+];
+/* combine pools: pieces that are all 3 or 4 sided, outer 3..6 sides */
+const CS_TWO=[0,1,2,3,4,6,7,9];            /* 2 pieces that push together */
+const CS_THREE=[5,11];                      /* 3 pieces that push together */
+const CS_SPLIT=[0,1,3,4,5,6,7,8,9,10,11];  /* wholes with cut lines to name */
+
+function csCentroid(p){let x=0,y=0;p.forEach(q=>{x+=q[0];y+=q[1]});return[x/p.length,y/p.length]}
+function csOffsets(parts,d){const oc=csCentroid(parts.flat());return parts.map(p=>{const c=csCentroid(p);let vx=c[0]-oc[0],vy=c[1]-oc[1];const l=Math.hypot(vx,vy)||1;return[vx/l*d,vy/l*d]})}
+const csPts=p=>p.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join(' ');
+function csFmt(names){const c={};names.forEach(n=>c[n]=(c[n]||0)+1);return Object.keys(c).sort((a,b)=>Object.values(CS_NAME).indexOf(a)-Object.values(CS_NAME).indexOf(b)).map(n=>c[n]>1?`${c[n]} ${CS_PLURAL[n]}`:n).join(' + ')}
+function csPhrase(names){const c={};names.forEach(n=>c[n]=(c[n]||0)+1);const ks=Object.keys(c).sort();const w=['','a','two','three'];return ks.map(n=>c[n]>1?`${w[c[n]]} ${CS_PLURAL[n]}`:`a ${n}`).join(' and ')}
+function csPiece(pts,fill,label,stroke){
+ const g=s('g',{});g.append(s('polygon',{points:csPts(pts),fill,stroke:stroke?'#1E1B4B':'none','stroke-width':2.6,'stroke-linejoin':'round'}));
+ if(label){const c=csCentroid(pts);g.append(s('text',{x:c[0].toFixed(1),y:(c[1]+4).toFixed(1),'text-anchor':'middle','font-size':11,'font-weight':800,fill:'#1E1B4B',stroke:'#fff','stroke-width':3,'paint-order':'stroke','pointer-events':'none'},label))}
+ return g}
+const csMove=(g,dx,dy,ms)=>{g.style.transition=`transform ${ms||.8}s ease`;g.style.transform=`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px)`};
+function csChoices(api,correctLabel,options,onRight,onWrong){
+ const bs=choiceButtons(options.map(o=>({v:o,label:cap(o)})),(v,b)=>{
+  if(v===correctLabel){b.classList.add('good');const c=centerOf(b);onRight(c)}
+  else{b.classList.add('bad');b.disabled=true;onWrong(v)}});
+ return bs}
+
+/* ---- Level 1: push pieces together, name the new shape ---- */
+function csCombine(api,svg,pool){
+ const sc=CSCENES[pick(pool)];const right=CS_NAME[sc.outer.length];
+ const offs=csOffsets(sc.parts,17);const sh=Math.random()<.5?1:0;
+ const gs=sc.parts.map((p,i)=>{const g=csPiece(p,CS_PAL[(i+sh)%4],null,true);g.style.transform=`translate(${offs[i][0].toFixed(1)}px,${offs[i][1].toFixed(1)}px)`;svg.append(g);return g});
+ let joined=false;
+ const join=()=>{if(joined)return;joined=true;gs.forEach(g=>csMove(g,0,0));setTimeout(()=>{if(!svg.isConnected)return;svg.append(s('polygon',{points:csPts(sc.outer),fill:'none',stroke:'#C026D3','stroke-width':4,'stroke-linejoin':'round','stroke-dasharray':'8 5',class:'popin'}))},850)};
+ api.ask(`These ${sc.parts.length} pieces are pushed together edge to edge.`,'Picture the new outside shape. Count its outside sides, then tap its name.');
+ csChoices(api,right,['triangle','quadrilateral','pentagon','hexagon'],c=>{join();api.good(`Count the outside edges: ${sc.outer.length}. The pieces make a ${right}!`,c.x,c.y)},v=>api.bad(`Not a ${v}. Count only the OUTSIDE edges once the pieces touch. Tap "Push together" to check!`));
+ const pb=h('button',{class:'btn wide',id:'joinBtn'},'Push together ▶');pb.onclick=()=>{sfx.tap();join()};api.controls.append(pb);
+ run.dbg={answer:right,parts:sc.parts.length}}
+
+/* ---- Level 2: whole shape with cut lines, name the pieces ---- */
+function csSplitNamed(api,svg){
+ const sc=CSCENES[pick(CS_SPLIT)];const names=sc.parts.map(p=>CS_NAME[p.length]);const right=csFmt(names);
+ const gs=sc.parts.map(p=>csPiece(p,'#EDE9FE','',false));gs.forEach(g=>svg.append(g));
+ const outline=s('polygon',{points:csPts(sc.outer),fill:'none',stroke:'#1E1B4B','stroke-width':3,'stroke-linejoin':'round'});svg.append(outline);
+ const cutEls=sc.cuts.map(([a,b])=>s('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#C026D3','stroke-width':3,'stroke-dasharray':'6 4','stroke-linecap':'round'}));cutEls.forEach(l=>svg.append(l));
+ const offs=csOffsets(sc.parts,15);
+ const split=()=>{cutEls.forEach(l=>l.remove());outline.remove();gs.forEach((g,i)=>{g.innerHTML='';const p=sc.parts[i];const g2=csPiece(p,CS_PAL[i%4],cap(CS_NAME[p.length]),true);while(g2.firstChild)g.append(g2.firstChild);csMove(g,offs[i][0],offs[i][1])})};
+ const pool=new Set([right]);const T=['triangle','quadrilateral','pentagon'];let guard=0;
+ while(pool.size<4&&guard++<80){const k=names.length;const pick2=[];for(let i=0;i<k;i++)pick2.push(pick(T));pool.add(csFmt(pick2))}
+ const opts=shuffle([...pool]);
+ api.ask(sc.cuts.length>1?'Two straight cuts split this shape.':'One straight cut splits this shape.','Follow the dashed line. What are the pieces called?');
+ csChoices(api,right,opts,c=>{split();api.good(`The cut makes: ${right}. Count each piece's sides to name it.`,c.x,c.y)},v=>api.bad(`Not ${v}. Look at each piece on its own and count its straight sides.`));
+ run.dbg={answer:right}}
+
+/* ---- Level 3: tap the cut that makes the target pieces (computed geometry) ---- */
+function csCutPoly(P,a,b){
+ const n=P.length,ring=[];
+ for(let i=0;i<n;i++){ring.push({p:P[i],id:'v'+i});const q=P[(i+1)%n];ring.push({p:[(P[i][0]+q[0])/2,(P[i][1]+q[1])/2],id:'e'+i})}
+ const ia=ring.findIndex(r=>r.id===a),ib=ring.findIndex(r=>r.id===b);
+ const walk=(f,t)=>{const out=[];let i=f;for(;;){out.push(ring[i]);if(i===t)break;i=(i+1)%ring.length}return out};
+ /* only keep midpoints that are cut ends: other edge midpoints are not real corners */
+ const keep=r=>r.id[0]==='v'||r.id===a||r.id===b;
+ return[walk(ia,ib).filter(keep).map(r=>r.p),walk(ib,ia).filter(keep).map(r=>r.p)]}
+const CS_CUTS={diag:[['v',0],['v',2]],mid:[['e',0],['e',2]],corner:[['e',0],['e',1]],vmid:[['v',0],['e',2]]};
+function csPickCut(api,svg){
+ const w=pick([100,100,130,140]),hh=w===100?100:pick([70,80]),cx=110,cy=100;
+ const P=[[cx-w/2,cy-hh/2],[cx+w/2,cy-hh/2],[cx+w/2,cy+hh/2],[cx-w/2,cy+hh/2]];
+ const rotK=rnd(0,3);
+ const ids=([t,k])=>t+((k+rotK)%4);
+ const all=Object.keys(CS_CUTS).map(key=>{const [A,B]=CS_CUTS[key];const a=ids(A),b=ids(B);const pcs=csCutPoly(P,a,b);return{key,a,b,pcs,names:pcs.map(q=>CS_NAME[q.length]),label:csFmt(pcs.map(q=>CS_NAME[q.length]))}});
+ const three=shuffle(all).slice(0,3);const target=pick(three);
+ svg.append(s('polygon',{points:csPts(P),fill:'#EDE9FE',stroke:'#1E1B4B','stroke-width':3,'stroke-linejoin':'round'}));
+ const col=['#E11D48','#2563EB','#16A34A'],L=['A','B','C'];
+ const pt=id=>{const k=+id.slice(1);return id[0]==='v'?P[k]:[(P[k][0]+P[(k+1)%4][0])/2,(P[k][1]+P[(k+1)%4][1])/2]};
+ const hit=[];
+ three.forEach((c,i)=>{const A=pt(c.a),B=pt(c.b);let best=null;for(const tt of [.5,.3,.7,.2,.8,.4,.6]){const x=A[0]+(B[0]-A[0])*tt,y=A[1]+(B[1]-A[1])*tt;const dm=hit.length?Math.min(...hit.map(o=>Math.hypot(o.lx-x,o.ly-y))):99;if(!best||dm>best.dm+.5)best={dm,x,y};if(dm>=26)break}const lx=best.x,ly=best.y;
+  const g=s('g',{style:'cursor:pointer'});
+  g.append(s('line',{x1:A[0],y1:A[1],x2:B[0],y2:B[1],stroke:col[i],'stroke-width':3.5,'stroke-dasharray':'7 4','stroke-linecap':'round'}),
+   s('line',{x1:A[0],y1:A[1],x2:B[0],y2:B[1],stroke:'transparent','stroke-width':22,'stroke-linecap':'round'}),
+   s('circle',{cx:lx.toFixed(1),cy:ly.toFixed(1),r:10,fill:'#fff',stroke:col[i],'stroke-width':2.5}),
+   s('text',{x:lx.toFixed(1),y:(ly+4.5).toFixed(1),'text-anchor':'middle','font-size':12,'font-weight':900,fill:col[i],'pointer-events':'none'},L[i]));
+  g.dataset.v=L[i];svg.append(g);hit.push({g,c,i,lx,ly})});
+ const doSplit=c=>{const offs=csOffsets(c.pcs,13);svg.innerHTML='';c.pcs.forEach((p,i)=>{const g=csPiece(p,CS_PAL[i%4],cap(CS_NAME[p.length]),true);svg.append(g);requestAnimationFrame(()=>requestAnimationFrame(()=>csMove(g,offs[i][0],offs[i][1])))})};
+ api.ask(`Which cut makes ${csPhrase(target.names)}?`,'Each dashed line is a different straight cut. Tap the line that works.');
+ hit.forEach(o=>o.g.addEventListener('click',()=>{if(run.solved||o.g.dataset.off)return;
+  if(o.c===target){const r=o.g.getBoundingClientRect();doSplit(o.c);api.good(`Cut ${L[o.i]} makes ${o.c.label}. Count the sides of each piece.`,r.left+r.width/2,r.top+r.height/2)}
+  else{sfx.tap();o.g.dataset.off='1';o.g.style.opacity='.3';api.bad(`Cut ${L[o.i]} makes ${o.c.label}, not ${csPhrase(target.names)}. Try another line.`)}}));
+ run.dbg={answer:L[three.indexOf(target)],labels:three.map(c=>c.label),target:target.label}}
+
+function combineRound(lvl,api){
+ const svg=s('svg',{viewBox:'0 10 220 180',id:'cmbSvg'});api.stage.append(svg);
+ if(lvl===0)return csCombine(api,svg,CS_TWO);
+ if(lvl===1)return csSplitNamed(api,svg);
+ return Math.random()<.5?csPickCut(api,svg):csCombine(api,svg,CS_THREE)}
+
+
 const ACTS=[
  {id:'sort',title:'Shape Sorter',color:'#7C3AED',sol:'SOL 3.MG.4',desc:'Drag shapes into the right bins!',levels:['Polygon or Not?','Count the Sides','Sort by Clues'],tips:['Polygons are closed shapes with straight sides. Circles are not polygons!','Count the sides: tri = 3, quad = 4, penta = 5, hexa = 6, hepta = 7, octa = 8, nona = 9, deca = 10.','Look for square corners, train-track sides, and equal sides!'],round:sortRound},
  {id:'tap',title:'Tap Detective',color:'#0D9488',sol:'SOL 3.MG.4',desc:'Find vertices, sides and right angles.',levels:['Find the Vertices','Count the Sides','Spot Right Angles'],tips:['A vertex is a corner. Tap every one you see!','Tap each side once, then name the shape.','A right angle is a square corner. Use the yellow checker!'],round:tapRound},
  {id:'angle',title:'Angle Lab',color:'#E11D48',sol:'Challenge',group:'ch',desc:'Bend angles and use the corner checker.',levels:['Name That Angle','Make an Angle','Angle Hunt'],tips:['Acute is smaller than a square corner. Obtuse is bigger. Right is exactly a square corner.','Drag the red dot to bend the angle!','Which kind of angle is hiding in the pink corner?'],round:angleRound},
  {id:'quad',title:'Quad Quest',color:'#2563EB',sol:'SOL 3.MG.4',desc:'Squares, rhombuses, trapezoids & more.',levels:['Best Name','All the Names','True or False?'],tips:['Little squares show right angles. Tick marks show equal sides.','A square is a rectangle AND a rhombus too!','Think like a shape scientist!'],round:quadRound},
+ {id:'combine',title:'Combine & Split',color:'#C026D3',sol:'SOL 3.MG.4',desc:'Push shapes together or cut them apart.',levels:['Push Together','Cut It Up','Pick the Cut'],tips:['Push the pieces together, then count the OUTSIDE sides to name the new shape.','A straight cut makes smaller polygons. Count the sides of each piece to name it.','Different cuts make different pieces. Tap the dashed line that makes the shapes you want!'],round:combineRound},
  {id:'peri',title:'Perimeter Path',color:'#D97706',sol:'SOL 3.MG.2',desc:'Walk all the way around the shape.',levels:['Count the Units','Add the Sides','Missing Side'],tips:['Perimeter is the distance all the way AROUND a shape.','Add up every side length.','Use the total to find the missing side!'],round:periRound},
  {id:'area',title:'Area Builder',color:'#16A34A',sol:'SOL 3.MG.2',desc:'Fill shapes with square tiles.',levels:['Count the Squares','Missing Squares','Build with Tiles','Rectangle Stretch'],tips:['Area is how many squares cover a shape. Rows × squares in a row!','Some squares are missing! Whole rectangle, then take away.','Tap the grid to place green tiles!','Same perimeter can have different areas. Stretch and see!'],round:areaRound},
  {id:'lines',title:'Line Lab',color:'#0891B2',sol:'Challenge',group:'ch',desc:'Points, lines, line segments and rays.',levels:['What Is It?','Name It','Draw It'],tips:['Dots are endpoints (it stops). Arrows mean it keeps going forever!','Ray names start with the endpoint letter. Lines and segments can go either way.','Pick the right tool, then connect the points!'],round:linesRound},
