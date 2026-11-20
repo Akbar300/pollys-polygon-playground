@@ -1231,7 +1231,8 @@ function foldPlay(svg,P,c,a,ok,done){
  if(svg._fold)svg._fold.cancel();
  const H=clipHalf(P,c,a);if(H.length<3){if(done)done();return}
  const deg=a/D2R,ease=u=>u*u*(3-2*u);
- const g=s('g',{});g.append(s('polygon',{points:H.map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join(' '),fill:'#FB923C','fill-opacity':.85,stroke:'#EA580C','stroke-width':1.4,'stroke-linejoin':'round'}));
+ const g=s('g',{});const poly=s('polygon',{points:'',fill:'#FB923C','fill-opacity':.85,stroke:'#EA580C','stroke-width':1.4,'stroke-linejoin':'round'});g.append(poly);
+ const ax=Math.cos(a),ay=Math.sin(a),setU=u=>{const k=Math.cos(Math.PI*u);poly.setAttribute('points',H.map(p=>{const dx=p[0]-c[0],dy=p[1]-c[1],al=dx*ax+dy*ay,pe=-dx*ay+dy*ax;return (c[0]+al*ax-pe*k*ay).toFixed(2)+','+(c[1]+al*ay+pe*k*ax).toFixed(2)}).join(' '))};setU(0);
  const fl=axisLine(c,a,70,{'stroke-dasharray':'none','stroke-width':2.2});
  const lab=s('text',{x:0,y:-54,'text-anchor':'middle','font-size':9,'font-weight':800,fill:ok?'#15803D':'#B91C1C',stroke:'#fff','stroke-width':3,'paint-order':'stroke'});lab.textContent=ok?'The halves match!':'It sticks out!';
  svg.append(fl,g);let raf=0,dead=false,labShown=false;const t0=performance.now();
@@ -1240,7 +1241,7 @@ function foldPlay(svg,P,c,a,ok,done){
  svg._fold=ctl;
  function frame(now){if(dead)return;if(!svg.isConnected){end();return}
   const e=now-t0;let u;if(e<1100)u=ease(e/1100);else if(e<2700)u=1;else if(e<3700)u=1-ease((e-2700)/1000);else{end();if(done)done();return}
-  g.setAttribute('transform',`translate(${c[0]} ${c[1]}) rotate(${deg}) scale(1 ${Math.cos(Math.PI*u).toFixed(4)}) rotate(${-deg}) translate(${-c[0]} ${-c[1]})`);
+  setU(u);
   if(u===1&&!labShown){labShown=true;svg.append(lab)}else if(u<1&&labShown){labShown=false;lab.remove()}
   raf=requestAnimationFrame(frame)}
  raf=requestAnimationFrame(frame)}
