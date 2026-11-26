@@ -337,8 +337,9 @@ main{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
   .act.playfull .prompt h2{font-size:18px}
   .act.playfull .prompt p{font-size:14px}
   .act.playfull .stage,.act.playfull .stage.ar{grid-area:stage;min-height:140px;max-height:none;width:100%;flex:unset;height:auto}
-  .act.playfull .controls{grid-area:controls;display:flex;flex-direction:column;justify-content:center;width:100%;overflow:auto;padding-bottom:4px}
+  .act.playfull .controls{grid-area:controls;display:flex;flex-direction:column;flex-wrap:nowrap;justify-content:center;justify-content:safe center;width:100%;overflow:auto;padding-bottom:4px}
   .act.playfull .controls .btn{width:100%;max-width:none}
+  .act.playfull .controls .btn.next{flex:none;min-width:0;max-width:none;width:100%;justify-self:stretch;position:sticky;bottom:0;z-index:2}
   .act.playfull .controls.row{flex-direction:column;flex-wrap:nowrap}
   .act.playfull .move-btns{grid-template-columns:1fr}
   .act.playfull .actionbar,.act.playfull .panel > .mascot-row{max-width:42%}
@@ -555,6 +556,17 @@ body.set-puff .hero{background:linear-gradient(120deg,#DB2777,#9333EA)}
  .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)):not(.tilebar)>:not(.btn){grid-column:1/-1;width:100%}
  .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)).row{max-width:760px}
  .act.playfull .controls:not(.has-keypad):not(:has(.keypad)):not(:has(.move-btns)) .counter{grid-column:1/-1;justify-self:center;text-align:center;width:auto;min-width:240px}
+}
+
+/* Learn screen: Back / Next always visible (no scrolling to find them), esp. phone sideways */
+.lnav{position:sticky;bottom:0;z-index:5;background:var(--bg,#F5F3FF);padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom));margin-top:auto}
+.lnav .btn{min-height:48px}
+@media (min-width:901px){
+  .lbody{overflow:auto;-webkit-overflow-scrolling:touch}
+  .lmain{height:100%}
+}
+@media (max-height:520px){
+  .lnav .btn{min-height:44px;padding-top:4px;padding-bottom:4px}
 }
 </style>
 </head>
