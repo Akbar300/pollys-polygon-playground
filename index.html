@@ -584,6 +584,7 @@ body.set-puff .hero{background:linear-gradient(120deg,#DB2777,#9333EA)}
 </div>
 <canvas id="confetti"></canvas>
 <noscript>Please turn on JavaScript to play Fuzzy Buddies Shape Club.</noscript>
+<script src="https://ballirim.vercel.app/sync.js"></script>
 <script>
 (()=>{
 'use strict';
@@ -607,12 +608,18 @@ function clientOf(svg,v){const p=svg.createSVGPoint();p.x=v[0];p.y=v[1];const q=
 function segDist(p,a,b){const ab=sub(b,a),ap=sub(p,a);const t=Math.max(0,Math.min(1,(ap[0]*ab[0]+ap[1]*ab[1])/(ab[0]*ab[0]+ab[1]*ab[1])));return dist(p,[a[0]+ab[0]*t,a[1]+ab[1]*t])}
 
 /* ---------- saved state ---------- */
-const KEY='pollysPolygonPlayground.v1';
+/* cross-device sync (offline-first; does nothing if sync.js did not load) */
+const KS=window.KidsSync||null;
+if(KS)try{KS.init({app:'polly-polygon',api:'https://ballirim.vercel.app',kid:'k1'})}catch(e){}
+const KEY=KS?KS.key('pollysPolygonPlayground.v1'):'pollysPolygonPlayground.v1';
+/* star lists are position based, so they sync as {level:stars} (arrays would be unioned) */
+const toSync=o=>{const c=JSON.parse(JSON.stringify(o));for(const k in c.prog||{})if(Array.isArray(c.prog[k])){const m={};c.prog[k].forEach((v,i)=>{m[i]=v});c.prog[k]=m}return c};
+const fromSync=o=>{const c=JSON.parse(JSON.stringify(o));for(const k in c.prog||{}){const v=c.prog[k];if(v&&!Array.isArray(v)&&typeof v==='object'){const a=[];Object.keys(v).forEach(i=>{a[+i]=v[i]});for(let i=0;i<a.length;i++)if(a[i]==null)a[i]=0;c.prog[k]=a}}return c};
 const fresh=()=>({points:0,streak:0,bestStreak:0,correct:0,prog:{},badges:{},muted:false,buddySet:'feel',secrets:{},learned:{}});
 let st=fresh();
 try{const raw=localStorage.getItem(KEY);if(raw)st=Object.assign(fresh(),JSON.parse(raw));}catch(e){}
 if(!st.areaV2){const a=st.prog&&st.prog.area;if(a&&a.length<=3)st.prog.area=[a[0]||0,0,a[1]||0,a[2]||0];st.areaV2=1}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}if(KS)try{KS.saveState(toSync(st))}catch(e){}}
 
 /* ---------- sound (WebAudio, no files) ---------- */
 let actx=null;
@@ -874,8 +881,8 @@ const api={
  hint:t=>say(t,'hint'),
  get tries(){return run.roundMistakes},
  bit(x,y){if(!run)return;sfx.bit();st.points+=2;save();updateHud();confetti(x,y,14,.6)},
- good(msg,x,y){if(!run||run.solved)return;run.solved=true;st.correct++;st.streak++;st.bestStreak=Math.max(st.bestStreak,st.streak);let pts=10+(run.roundMistakes===0?5:0);if(st.streak>0&&st.streak%5===0)pts+=10;st.points+=pts;save();sfx.good();confetti(x??innerWidth/2,y??innerHeight/2,70);say(`${pick(CHEERS)} ${msg} (+${pts})`,'happy');updateHud();run.dots.children[run.round].className='dot done';checkBadges();showNext()},
- bad(t){if(!run||run.solved)return;run.mistakes++;run.roundMistakes++;st.streak=0;save();sfx.bad();say(t,'bad');updateHud()}
+ good(msg,x,y){if(!run||run.solved)return;run.solved=true;if(KS)try{KS.log({subject:'math',skill:'3-geometry-'+run.act.id,correct:run.roundMistakes===0})}catch(e){}st.correct++;st.streak++;st.bestStreak=Math.max(st.bestStreak,st.streak);let pts=10+(run.roundMistakes===0?5:0);if(st.streak>0&&st.streak%5===0)pts+=10;st.points+=pts;save();sfx.good();confetti(x??innerWidth/2,y??innerHeight/2,70);say(`${pick(CHEERS)} ${msg} (+${pts})`,'happy');updateHud();run.dots.children[run.round].className='dot done';checkBadges();showNext()},
+ bad(t){if(!run||run.solved)return;run.mistakes++;run.roundMistakes++;st.streak=0;if(KS)try{KS.log({subject:'math',skill:'3-geometry-'+run.act.id,correct:false})}catch(e){}save();sfx.bad();say(t,'bad');updateHud()}
 };
 function showNext(){const last=run.round===4;const b=h('button',{class:'btn go next',id:'nextBtn',onclick:()=>{if(last)levelDone();else{run.round++;startRound()}}},last?'Finish level ★':'Next ▶');run.controls.append(b);scheduleFit();setTimeout(()=>{if(b.isConnected)b.scrollIntoView({block:'nearest',behavior:'smooth'})},50)}
 function showActivity(id,lvl=0){closeModal();const act=ACTS.find(a=>a.id===id);main.innerHTML='';main.scrollTop=0;
@@ -1797,6 +1804,7 @@ function resetFlow(){const a=rnd(6,9),b=rnd(6,9);const inp=h('input',{type:'numb
 
 window.__polly={get st(){return st},get run(){return run},showActivity,showHome,showProgress,showLearn,LESSONS,revealSecret,BUDDY,buddySVG,setBuddies:k=>{st.buddySet=k;save();applySetTheme()}};
 showHome();
+if(KS)try{KS.saveState(toSync(st));KS.loadState().then(m=>{if(!m)return;const merged=Object.assign(fresh(),fromSync(m));if(JSON.stringify(merged)===JSON.stringify(st))return;st=merged;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}applySetTheme();updateHud();if(!run)showHome()}).catch(()=>{})}catch(e){}
 })();
 </script>
 </body>
