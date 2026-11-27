@@ -8,7 +8,7 @@ main{padding:24px;max-width:420px}a{display:block;margin:12px 0;padding:14px;bor
 /* Platform v6 Phase 4: this address moved under the family hub. Pack this device's saved progress into the URL
    fragment (never sent to any server) and open the room at its new address; the hub's carry.js copies it in. */
 (function () {
-  var HUB = 'https://ballirim.vercel.app', CFG = {"base": "/aliya/math/", "title": "Polly's Polygon Playground"};
+  var HUB = 'https://ballirim.vercel.app', CFG = {"base": "/go/math3/", "title": "Polly's Polygon Playground"};
   function pack() {
     var o = {};
     try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('ks:') !== 0) o[k] = localStorage.getItem(k); } } catch (e) {}
